@@ -1,99 +1,60 @@
-// import React from 'react'
-// import {Card, CardMedia, CardContent, CardActions, Typography, IconButton} from '@material-ui/core';
-// import {AddShoppingCart } from '@material-ui/icons';
-// import useStyles from './styles'
-
-// const Product = ({ product, onAddToCart }) => {
-//     const classes = useStyles();
-
-//   return (
-//     <Card className={classes.root}>
-//         <CardMedia className={classes.media} image={product.image.url}  title={product.name}/> 
-//         <CardContent>
-//             <div className={classes.cardContent}>
-//                 <Typography variant="h5" gutterBottom>
-//                     {product.name}
-//                 </Typography>
-//                 <Typography variant="h5" gutterBottom>
-//                     {product.price.formatted_with_symbol}
-//                 </Typography>
-//             </div> 
-//              <Typography dangerouslySetInnerHTML= {{__html: product.description}} variant='body2' color="textSecondary" />
-//             <CardActions disableSpacing className={classes.cardActions}>
-//                 <IconButton aria-label="Add to cart" onClick={()=> onAddToCart(product.id, 1)}> 
-//                     <AddShoppingCart />
-//                 </IconButton>   
-//             </CardActions> 
-//         </CardContent>
-//     </Card>
-//   )
-// }
- 
-// export default Product
-
-
-import React, { useEffect, useState} from 'react'
-import {Card, CardMedia, CardContent, CardActions, Typography, IconButton} from '@material-ui/core';
-import {AddShoppingCart } from '@material-ui/icons';
+import React from 'react';
+import { Card, CardMedia, CardContent, CardActions, Typography, Button, IconButton } from '@material-ui/core';
+import { AddShoppingCart, Favorite, FavoriteBorder } from '@material-ui/icons';
+import { useNavigate } from 'react-router-dom';
 import useStyles from './styles';
-import {FaRegHeart, FaHeart} from "react-icons/fa";
-import { IconContext } from 'react-icons';
 
-const hoverStyles = {
-    transform: 'scale(1.5)',
-}
-
-
-// import '../scss/styles.scss';
-
-const Product = ({ product, onAddToCart }) => {
-    const classes = useStyles();
-    const [isHovering, setIsHovering] = useState(false);
-    const [isActive, setIsActive] = useState(false, localStorage.getItem('isActive') === 'true');
-
-    useEffect(() => {
-        localStorage.setItem('isActive', isActive);
-      }, [isActive]);
-
-    const handleMouseOver = () => {
-        setIsHovering(true)
-      };
-    
-      const handleMouseOut = () => {
-        setIsHovering(false);
-        
-      }; 
-      
-
-    //   const favorited = isActive ? classes.heart : classes.emptyheart;
-      const favorited = isActive ? <FaHeart className={classes.filledheart} onClick={() =>
-        (setIsActive(!isActive))}/>  : 
-        <FaRegHeart className={classes.emptyheart} onClick={() => {return (setIsActive(!isActive))}}/>;
+const Product = ({ product, onAddToCart, isLiked, onToggleLike }) => {
+  const classes = useStyles();
+  const navigate = useNavigate();
 
   return (
-    <Card className={classes.root} onMouseEnter={handleMouseOver} onMouseLeave={ isActive ? handleMouseOver : handleMouseOut}>
-        <IconContext.Provider value={{ size:"1.7em"}} >
-            <CardMedia className={isHovering ? classes.hover : classes.media} image={product.image.url}  title={product.name}/>
-            {isHovering && favorited}
-            <CardContent>
-                <div className={classes.cardContent}>
-                    <Typography variant="h5" gutterBottom>
-                        {product.name}
-                    </Typography>
-                    <Typography variant="h5" gutterBottom>
-                        {product.price.formatted_with_symbol}
-                    </Typography>
-                </div> 
-                <Typography dangerouslySetInnerHTML= {{__html: product.description}} variant='body2' color="textSecondary" />
-                <CardActions disableSpacing className={classes.cardActions}>
-                    <IconButton aria-label="Add to cart" onClick={()=> onAddToCart(product.id, 1)}> 
-                        <AddShoppingCart />
-                    </IconButton>   
-                </CardActions> 
-            </CardContent>
-        </IconContext.Provider>
+    <Card className={classes.root} onClick={() => navigate(`/product/${product.id}`)}>
+      <div className={classes.mediaWrapper}>
+        <CardMedia
+          className={classes.media}
+          image={product.image.url}
+          title={product.name}
+        />
+        <IconButton
+          className={classes.heartBtn}
+          onClick={(e) => { e.stopPropagation(); onToggleLike(product.id); }}
+          aria-label="like"
+        >
+          {isLiked
+            ? <Favorite className={classes.heartFilled} />
+            : <FavoriteBorder className={classes.heartEmpty} />
+          }
+        </IconButton>
+      </div>
+      <CardContent className={classes.cardContent}>
+        <div className={classes.nameRow}>
+          <Typography variant="h6" className={classes.productName}>
+            {product.name}
+          </Typography>
+          <Typography variant="h6" className={classes.price}>
+            {product.price.formatted_with_symbol}
+          </Typography>
+        </div>
+        <Typography
+          variant="body2"
+          className={classes.description}
+          dangerouslySetInnerHTML={{ __html: product.description }}
+        />
+      </CardContent>
+      <CardActions className={classes.cardActions}>
+        <Button
+          fullWidth
+          variant="contained"
+          className={classes.addButton}
+          startIcon={<AddShoppingCart />}
+          onClick={(e) => { e.stopPropagation(); onAddToCart(product.id, 1); }}
+        >
+          Add to Cart
+        </Button>
+      </CardActions>
     </Card>
-  )
-}
- 
+  );
+};
+
 export default Product;
