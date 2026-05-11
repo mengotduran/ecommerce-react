@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { Container, Grid, Typography, Button, IconButton, Chip } from '@material-ui/core';
 import {
@@ -16,6 +16,8 @@ const ProductDetail = ({ products, onAddToCart, likedItems, onToggleLike }) => {
   const [activeImg, setActiveImg] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
+
+  useEffect(() => { window.scrollTo(0, 0); }, [id]);
 
   if (!product) return <Navigate to="/" />;
 

@@ -136,16 +136,21 @@ const emptyCart = { total_items: 0, line_items: [], subtotal: { formatted_with_s
 const computeCart = (line_items) => {
   const total_items = line_items.reduce((sum, i) => sum + i.quantity, 0);
   const subtotalRaw = line_items.reduce((sum, i) => sum + i.price.raw * i.quantity, 0);
-  return {
+  const updated = {
     line_items,
     total_items,
     subtotal: { formatted_with_symbol: `$${subtotalRaw.toFixed(2)}` },
   };
+  localStorage.setItem('cart', JSON.stringify(updated));
+  return updated;
 };
 
 const App = () => {
   const [products] = useState(sampleProducts);
-  const [cart, setCart] = useState(emptyCart);
+  const [cart, setCart] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('cart')) || emptyCart; }
+    catch { return emptyCart; }
+  });
   const [order, setOrder] = useState({});
   const [errorMessage] = useState('');
   const [likedItems, setLikedItems] = useState(() => {
@@ -198,10 +203,14 @@ const App = () => {
     setCart(prev => computeCart(prev.line_items.filter(i => i.product_id !== productId)));
   };
 
-  const handleEmptyCart = () => setCart(emptyCart);
+  const handleEmptyCart = () => {
+    localStorage.removeItem('cart');
+    setCart(emptyCart);
+  };
 
   const handleCaptureCheckout = (checkoutTokenId, newOrder) => {
     setOrder(newOrder);
+    localStorage.removeItem('cart');
     setCart(emptyCart);
   };
 
