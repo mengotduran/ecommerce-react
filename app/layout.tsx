@@ -1,0 +1,34 @@
+import type { Metadata } from 'next';
+import { Inter, JetBrains_Mono } from 'next/font/google';
+import './globals.css';
+import Navbar from '../components/Navbar/NavbarLazy';
+import SearchOverlay from '../components/SearchOverlay';
+import Footer from '../components/Footer';
+import StoreHydrator from '../components/StoreHydrator';
+
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const mono  = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' });
+
+export const metadata: Metadata = {
+  title: 'E-commerce',
+  description: 'Web site created using create-react-app',
+  manifest: '/manifest.json',
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/logo192.png',
+  },
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" className={`${inter.variable} ${mono.variable}`}>
+      <body style={{ fontFamily: 'var(--font-inter), system-ui, sans-serif' }}>
+        <StoreHydrator />
+        <Navbar />
+        <SearchOverlay />
+        {children}
+        <Footer />
+      </body>
+    </html>
+  );
+}

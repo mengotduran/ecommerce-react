@@ -10,6 +10,8 @@
 
 # production
 /build
+/.next/
+/out/
 
 # misc
 .DS_Store
@@ -21,3 +23,12 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# typescript
+next-env.d.ts
+
+# backend (NestJS)
+backend/node_modules
+backend/dist
+backend/.env
+backend/generated/
