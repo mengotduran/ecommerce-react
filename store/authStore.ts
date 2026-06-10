@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { useLikedStore } from './likedStore';
+import { useCartStore } from './cartStore';
 
 type User = { id: string; email: string; name: string; role: 'CUSTOMER' | 'ADMIN' | 'SUPERADMIN' };
 
@@ -45,6 +46,7 @@ export const useAuthStore = create<AuthState>()(
         setCookies(token, user.role);
         set({ user, token });
         useLikedStore.getState().init(user.id);
+        useCartStore.getState().init(user.id);
       },
 
       register: async (name, email, password) => {
@@ -61,12 +63,14 @@ export const useAuthStore = create<AuthState>()(
         setCookies(token, user.role);
         set({ user, token });
         useLikedStore.getState().init(user.id);
+        useCartStore.getState().init(user.id);
       },
 
       logout: () => {
         clearCookies();
         set({ user: null, token: null });
         useLikedStore.getState().init(null);
+        useCartStore.getState().init(null);
       },
     }),
     { name: 'auth' }

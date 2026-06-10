@@ -573,7 +573,9 @@ export default function HeroShowcase() {
         <div style={{ flex: 1.4, position: 'relative', overflow: 'hidden', background: s.bg }}>
           {/* Floor panel: slides up as displayFrac increases */}
           <div style={{ ...PANEL, transform: `translateY(${-frac * 100}%)`, willChange: 'transform' }}>
+            {/* key ties button state (e.g. "Added!") to the product, not the panel slot */}
             <InfoContent
+              key={products[floorIdx].id}
               product={products[floorIdx]}
               onAddToCart={() => addToCart(products[floorIdx].id, 1, { name: products[floorIdx].name, price: Number(products[floorIdx].price), image: products[floorIdx].images[0] })}
               isLiked={likedItems.includes(products[floorIdx].id)}
@@ -584,6 +586,7 @@ export default function HeroShowcase() {
           {ceilIdx > floorIdx && frac > 0.001 && (
             <div style={{ ...PANEL, transform: `translateY(${(1 - frac) * 100}%)`, willChange: 'transform' }}>
               <InfoContent
+                key={products[ceilIdx].id}
                 product={products[ceilIdx]}
                 onAddToCart={() => addToCart(products[ceilIdx].id, 1, { name: products[ceilIdx].name, price: Number(products[ceilIdx].price), image: products[ceilIdx].images[0] })}
                 isLiked={likedItems.includes(products[ceilIdx].id)}
