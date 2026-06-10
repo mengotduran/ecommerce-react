@@ -14,17 +14,19 @@ const CartItem = ({ item, onUpdateCartQty, onRemoveFromCart }) => {
       display: 'flex',
       flexDirection: 'column',
     }}>
-      {/* Image */}
-      <div style={{ position: 'relative', width: '100%', paddingBottom: '75%', background: 'var(--surface)', overflow: 'hidden' }}>
-        <img
-          src={item.image.url}
-          alt={item.name}
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-        />
+      {/* Image — inset tile with rounded corners */}
+      <div style={{ padding: '8px 8px 0' }}>
+        <div style={{ position: 'relative', width: '100%', paddingBottom: '62%', background: 'var(--surface)', overflow: 'hidden', borderRadius: 10 }}>
+          <img
+            src={item.image.url}
+            alt={item.name}
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          />
+        </div>
       </div>
 
       {/* Body */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '14px 16px 16px' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '10px 12px 12px' }}>
         <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--foreground)', margin: '0 0 3px', lineHeight: 1.35 }}>
           {item.name}
         </p>
@@ -32,32 +34,32 @@ const CartItem = ({ item, onUpdateCartQty, onRemoveFromCart }) => {
           ${item.price.raw.toFixed(2)} each
         </p>
 
-        {/* Row 1: qty controls + line total */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+        {/* Row 1: qty controls + line total; wraps instead of colliding in narrow cards */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 10 }}>
           <div style={{
-            display: 'flex', alignItems: 'center',
+            display: 'flex', alignItems: 'center', flexShrink: 0,
             border: '1px solid var(--border-color)', borderRadius: 8, overflow: 'hidden',
           }}>
             <button
               type="button"
               onClick={() => onUpdateCartQty(item.product_id, item.quantity - 1)}
-              style={{ width: 30, height: 30, background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: 'var(--foreground)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              style={{ width: 26, height: 28, background: 'none', border: 'none', cursor: 'pointer', fontSize: 15, color: 'var(--foreground)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
               −
             </button>
-            <span style={{ width: 26, textAlign: 'center', fontSize: 13, fontWeight: 500, color: 'var(--foreground)' }}>
+            <span style={{ width: 22, textAlign: 'center', fontSize: 13, fontWeight: 500, color: 'var(--foreground)' }}>
               {item.quantity}
             </span>
             <button
               type="button"
               onClick={() => onUpdateCartQty(item.product_id, item.quantity + 1)}
-              style={{ width: 30, height: 30, background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: 'var(--foreground)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              style={{ width: 26, height: 28, background: 'none', border: 'none', cursor: 'pointer', fontSize: 15, color: 'var(--foreground)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
               +
             </button>
           </div>
 
-          <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.3px', color: 'var(--foreground)' }}>
+          <span style={{ fontSize: 14, fontWeight: 600, letterSpacing: '-0.3px', color: 'var(--foreground)' }}>
             {lineTotal}
           </span>
         </div>

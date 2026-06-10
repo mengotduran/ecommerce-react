@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { useAuthStore } from '../../store/authStore';
 
 export default function LoginPage() {
@@ -10,6 +11,7 @@ export default function LoginPage() {
   const login    = useAuthStore((s) => s.login);
   const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError]       = useState('');
   const [loading, setLoading]   = useState(false);
 
@@ -28,13 +30,13 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--background)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 16px' }}>
+    <div className="auth-page">
       <div style={{ width: '100%', maxWidth: 400 }}>
 
         {/* Logo */}
         <Link href="/" style={{ textDecoration: 'none', display: 'block', textAlign: 'center', marginBottom: 32 }}>
-          <span style={{ fontSize: 20, fontWeight: 700, letterSpacing: '-0.4px', color: 'var(--foreground)' }}>
-            Shop<span style={{ color: 'var(--accent)' }}>Ease</span>
+          <span style={{ fontFamily: 'var(--font-mono), ui-monospace, monospace', fontSize: 20, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '-0.4px', color: 'var(--foreground)' }}>
+            Veloc<span style={{ color: 'var(--accent)' }}>aris</span>
           </span>
         </Link>
 
@@ -63,9 +65,7 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="your@email.com"
-                style={{ width: '100%', boxSizing: 'border-box', padding: '10px 14px', background: 'var(--background)', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, color: 'var(--foreground)', outline: 'none', transition: 'border-color 150ms' }}
-                onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--accent)')}
-                onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--border-color)')}
+                className="auth-input"
               />
             </div>
 
@@ -73,16 +73,25 @@ export default function LoginPage() {
               <label style={{ fontSize: 12, fontWeight: 500, color: 'var(--foreground)', display: 'block', marginBottom: 6 }}>
                 Password
               </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                placeholder="••••••••"
-                style={{ width: '100%', boxSizing: 'border-box', padding: '10px 14px', background: 'var(--background)', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, color: 'var(--foreground)', outline: 'none', transition: 'border-color 150ms' }}
-                onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--accent)')}
-                onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--border-color)')}
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  placeholder="••••••••"
+                  className="auth-input"
+                  style={{ paddingRight: 42 }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  style={{ position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', padding: 6, cursor: 'pointer', color: 'var(--muted)', display: 'flex' }}
+                >
+                  {showPassword ? <EyeSlashIcon width={18} height={18} /> : <EyeIcon width={18} height={18} />}
+                </button>
+              </div>
             </div>
 
             <button
@@ -90,7 +99,12 @@ export default function LoginPage() {
               disabled={loading}
               style={{ marginTop: 4, padding: '12px 0', borderRadius: 10, border: 'none', background: loading ? 'var(--muted)' : 'var(--accent)', color: '#000', fontSize: 14, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', transition: 'background 200ms' }}
             >
-              {loading ? 'Signing in…' : 'Sign in'}
+              {loading ? (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                  <span className="btn-spinner" />
+                  Signing in…
+                </span>
+              ) : 'Sign in'}
             </button>
           </form>
 

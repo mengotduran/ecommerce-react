@@ -31,6 +31,9 @@ const Navbar = () => {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
+  // Auth pages render their own logo; no navbar (Footer hides on these too)
+  if (pathname === '/login' || pathname === '/register') return null;
+
   return (
     <header className="sticky top-0 z-[100] flex h-[52px] w-full items-center justify-between border-b border-border bg-background px-5">
       <Link

@@ -28,11 +28,82 @@
   --color-border: var(--border-color);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
+  --color-accent: var(--accent);
+}
+
+html, body {
+  /* clip (not hidden) — kills sideways panning without creating a scroll
+     container, so position: sticky keeps working */
+  max-width: 100%;
+  overflow-x: clip;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
+}
+
+/* Auth pages (login / register) */
+.auth-page {
+  min-height: 100svh;
+  background: var(--background);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+}
+
+.auth-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 14px;
+  background: var(--background);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--foreground);
+  outline: none;
+  transition: border-color 150ms;
+}
+
+.auth-input:focus {
+  border-color: var(--accent);
+}
+
+@media (max-width: 768px) {
+  .auth-page {
+    /* centered looks too low on phones — anchor the card near the top */
+    align-items: flex-start;
+    padding-top: 8svh;
+  }
+  .auth-input {
+    /* 16px+ stops mobile browsers from auto-zooming the page on focus */
+    font-size: 16px;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.btn-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 0, 0, 0.25);
+  border-top-color: #000;
+  animation: spin 0.6s linear infinite;
+}
+
+.page-spinner {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--accent);
+  animation: spin 0.7s linear infinite;
 }
 
 @keyframes kenBurns {
@@ -121,13 +192,17 @@ body {
 @media (max-width: 768px) {
   .cart-layout {
     flex-direction: column;
+    /* in column direction the base align-items:flex-start stops children from
+       stretching — empty skeleton cards would collapse to their (zero) content width */
+    align-items: stretch;
   }
   .cart-summary {
     width: 100%;
     position: static;
   }
   .cart-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
 }
 
@@ -182,6 +257,150 @@ body {
 
 @media (max-width: 480px) {
   .checkout-form-col > div[style] {
+    padding: 20px 16px;
+  }
+}
+
+/* Product detail gallery — thumbnails move below the main image on mobile */
+.product-gallery {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.product-thumbnails {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.product-main-image {
+  flex: 1;
+  height: 420px;
+}
+
+@media (max-width: 768px) {
+  .product-gallery {
+    flex-direction: column-reverse;
+  }
+  .product-thumbnails {
+    flex-direction: row;
+    overflow-x: auto;
+    width: 100%;
+    padding-bottom: 4px;
+  }
+  .product-thumbnails button {
+    flex-shrink: 0;
+  }
+  .product-main-image {
+    /* cancel the desktop flex:1 — in the column layout its 0 flex-basis
+       overrides height and collapses the box */
+    flex: 0 0 auto;
+    height: 320px;
+    width: 100%;
+  }
+}
+
+/* Admin dashboard layout — sidebar becomes a horizontal top bar on mobile */
+.admin-shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--background);
+}
+
+.admin-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  padding: 28px 0;
+}
+
+.admin-nav {
+  flex: 1;
+  padding: 0 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.admin-main {
+  flex: 1;
+  min-width: 0;
+  padding: clamp(24px, 3vw, 36px);
+  overflow-y: auto;
+  max-width: 100%;
+}
+
+/* Admin overview grids */
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 14px;
+}
+
+.admin-row-wide   { display: grid; grid-template-columns: 1fr 1.6fr; gap: 20px; }
+.admin-row-half   { display: grid; grid-template-columns: 1fr 1fr;   gap: 20px; }
+.admin-row-bottom { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; }
+
+/* Horizontal scrolling stays inside the wrapping card/element — pages
+   themselves never gain sideways scroll (html/body are overflow-x: clip) */
+.chart-scroll,
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.chart-scroll-inner { min-width: 0; }
+
+.table-scroll table { min-width: 640px; }
+
+@media (max-width: 768px) {
+  .admin-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  /* stack the chart/list rows — side-by-side they get squashed on phones */
+  .admin-row-wide,
+  .admin-row-half,
+  .admin-row-bottom {
+    grid-template-columns: 1fr;
+  }
+  /* keep charts at a readable width; the card scrolls sideways instead */
+  .chart-scroll-inner { min-width: 440px; }
+  .admin-brand-logo { display: none; }
+}
+
+@media (max-width: 768px) {
+  .admin-shell {
+    flex-direction: column;
+  }
+  .admin-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+    padding: 14px 0;
+  }
+  .admin-sidebar-brand {
+    padding: 0 16px 12px;
+    margin-bottom: 8px;
+  }
+  .admin-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 0 12px 4px;
+    gap: 6px;
+  }
+  .admin-nav a {
+    flex-shrink: 0;
+  }
+  .admin-back {
+    display: none;
+  }
+  .admin-main {
     padding: 20px 16px;
   }
 }

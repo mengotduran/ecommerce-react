@@ -33,14 +33,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   ];
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--background)' }}>
+    <div className="admin-shell">
 
       {/* Sidebar */}
-      <aside style={{ width: 220, flexShrink: 0, background: 'var(--surface)', borderRight: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', padding: '28px 0' }}>
-        <div style={{ padding: '0 20px 24px', borderBottom: '1px solid var(--border-color)', marginBottom: 12 }}>
-          <Link href="/" style={{ textDecoration: 'none' }}>
-            <span style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-0.3px', color: 'var(--foreground)' }}>
-              Shop<span style={{ color: 'var(--accent)' }}>Ease</span>
+      <aside className="admin-sidebar">
+        <div className="admin-sidebar-brand" style={{ padding: '0 20px 24px', borderBottom: '1px solid var(--border-color)', marginBottom: 12 }}>
+          <Link href="/" className="admin-brand-logo" style={{ textDecoration: 'none' }}>
+            <span style={{ fontFamily: 'var(--font-mono), ui-monospace, monospace', fontSize: 16, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '-0.3px', color: 'var(--foreground)' }}>
+              Veloc<span style={{ color: 'var(--accent)' }}>aris</span>
             </span>
           </Link>
           <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.6px', textTransform: 'uppercase', color: 'var(--accent)', margin: '4px 0 0' }}>
@@ -48,7 +48,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </p>
         </div>
 
-        <nav style={{ flex: 1, padding: '0 10px', display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <nav className="admin-nav">
           {NAV.map(({ href, label, icon: Icon, badge }) => {
             const active = href === '/admin' ? pathname === '/admin' : pathname.startsWith(href);
             return (
@@ -79,7 +79,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           })}
         </nav>
 
-        <div style={{ padding: '16px 20px 0', borderTop: '1px solid var(--border-color)' }}>
+        <div className="admin-back" style={{ padding: '16px 20px 0', borderTop: '1px solid var(--border-color)' }}>
           <Link href="/" style={{ fontSize: 12, color: 'var(--muted)', textDecoration: 'none', transition: 'color 150ms' }}
             onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--foreground)')}
             onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted)')}
@@ -90,7 +90,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Content */}
-      <main style={{ flex: 1, minWidth: 0, padding: 'clamp(24px, 3vw, 36px)', overflowY: 'auto' }}>
+      <main className="admin-main">
         {children}
       </main>
     </div>

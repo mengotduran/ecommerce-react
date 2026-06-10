@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import Navbar from '../components/Navbar/NavbarLazy';
@@ -8,6 +8,14 @@ import StoreHydrator from '../components/StoreHydrator';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const mono  = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' });
+
+// maximumScale stops the auto-zoom when small-font inputs get focus;
+// iOS ignores it for pinch gestures, so users can still zoom manually
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+};
 
 export const metadata: Metadata = {
   title: 'Velocaris',

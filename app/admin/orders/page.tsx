@@ -34,7 +34,7 @@ export default function AdminOrders() {
       {loading ? <p style={{ color: 'var(--muted)', fontSize: 14 }}>Loading…</p> : orders.length === 0 ? (
         <p style={{ color: 'var(--muted)', fontSize: 14 }}>No orders yet.</p>
       ) : (
-        <div style={{ background: 'var(--surface)', border: '1px solid var(--border-color)', borderRadius: 14, overflow: 'hidden' }}>
+        <div className="table-scroll" style={{ background: 'var(--surface)', border: '1px solid var(--border-color)', borderRadius: 14 }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
@@ -61,7 +61,7 @@ export default function AdminOrders() {
                       ))}
                     </td>
                     <td style={{ padding: '12px 16px', fontWeight: 600, color: 'var(--accent)' }}>${Number(o.total).toFixed(2)}</td>
-                    <td style={{ padding: '12px 16px', color: 'var(--muted)', fontSize: 12 }}>
+                    <td style={{ padding: '12px 16px', color: 'var(--muted)', fontSize: 12, whiteSpace: 'nowrap' }}>
                       {new Date(o.createdAt).toLocaleDateString()}
                     </td>
                     <td style={{ padding: '12px 16px' }}>

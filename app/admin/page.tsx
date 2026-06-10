@@ -93,7 +93,13 @@ export default function AdminOverview() {
 
   if (loading) return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      {[120, 320, 280, 220].map((h, i) => (
+      {/* Stat cards — same grid class as the real stats row */}
+      <div className="admin-stats-grid">
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} className="skeleton" style={{ height: 110, borderRadius: 16 }} />
+        ))}
+      </div>
+      {[320, 280, 220].map((h, i) => (
         <div key={i} className="skeleton" style={{ height: h, borderRadius: 16 }} />
       ))}
     </div>
@@ -131,7 +137,7 @@ export default function AdminOverview() {
       </div>
 
       {/* ── Stat cards ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: 14 }}>
+      <div className="admin-stats-grid">
         {stats.map(({ label, value, icon: Icon, color, trend }) => (
           <Card key={label} style={{ padding: '18px 22px' }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 }}>
@@ -248,7 +254,7 @@ export default function AdminOverview() {
       </div>
 
       {/* ── Middle row: Order status donut + Category revenue bar ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.6fr', gap: 20 }}>
+      <div className="admin-row-wide">
 
         {/* Order status donut */}
         <Card>
@@ -288,39 +294,47 @@ export default function AdminOverview() {
           {(data?.categoryRevenue ?? []).length === 0
             ? <p style={{ fontSize: 13, color: 'var(--muted)', textAlign: 'center', padding: '40px 0' }}>No data yet</p>
             : (
-              <ResponsiveContainer width="100%" height={220}>
-                <BarChart data={data.categoryRevenue} layout="vertical" margin={{ top: 0, right: 16, bottom: 0, left: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" horizontal={false} />
-                  <XAxis type="number" tick={{ fontSize: 11, fill: 'var(--muted)' }} axisLine={false} tickLine={false} tickFormatter={(v) => fmt(v)} />
-                  <YAxis type="category" dataKey="category" tick={{ fontSize: 11, fill: 'var(--muted)' }} axisLine={false} tickLine={false} width={90} />
-                  <Tooltip content={<CustomTooltip prefix="$" />} />
-                  <Bar dataKey="revenue" radius={[0, 6, 6, 0]} name="Revenue">
-                    {(data.categoryRevenue ?? []).map((_: any, i: number) => (
-                      <Cell key={i} fill={CATEGORY_COLORS[i % CATEGORY_COLORS.length]} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+              <div className="chart-scroll">
+                <div className="chart-scroll-inner">
+                  <ResponsiveContainer width="100%" height={220}>
+                    <BarChart data={data.categoryRevenue} layout="vertical" margin={{ top: 0, right: 16, bottom: 0, left: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" horizontal={false} />
+                      <XAxis type="number" tick={{ fontSize: 11, fill: 'var(--muted)' }} axisLine={false} tickLine={false} tickFormatter={(v) => fmt(v)} />
+                      <YAxis type="category" dataKey="category" tick={{ fontSize: 11, fill: 'var(--muted)' }} axisLine={false} tickLine={false} width={90} />
+                      <Tooltip content={<CustomTooltip prefix="$" />} />
+                      <Bar dataKey="revenue" radius={[0, 6, 6, 0]} name="Revenue">
+                        {(data.categoryRevenue ?? []).map((_: any, i: number) => (
+                          <Cell key={i} fill={CATEGORY_COLORS[i % CATEGORY_COLORS.length]} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
             )
           }
         </Card>
       </div>
 
       {/* ── User growth line + Top products bar ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+      <div className="admin-row-half">
 
         {/* User signups */}
         <Card>
           <CardTitle>New user signups — last 30 days</CardTitle>
-          <ResponsiveContainer width="100%" height={180}>
-            <LineChart data={userGrowth} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
-              <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--muted)' }} axisLine={false} tickLine={false} interval={4} />
-              <YAxis tick={{ fontSize: 11, fill: 'var(--muted)' }} axisLine={false} tickLine={false} allowDecimals={false} />
-              <Tooltip content={<CustomTooltip />} />
-              <Line type="monotone" dataKey="Users" stroke="#10b981" strokeWidth={2.5} dot={false} name="Signups" />
-            </LineChart>
-          </ResponsiveContainer>
+          <div className="chart-scroll">
+            <div className="chart-scroll-inner">
+              <ResponsiveContainer width="100%" height={180}>
+                <LineChart data={userGrowth} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
+                  <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--muted)' }} axisLine={false} tickLine={false} interval={4} />
+                  <YAxis tick={{ fontSize: 11, fill: 'var(--muted)' }} axisLine={false} tickLine={false} allowDecimals={false} />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Line type="monotone" dataKey="Users" stroke="#10b981" strokeWidth={2.5} dot={false} name="Signups" />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
         </Card>
 
         {/* Top products by units sold */}
@@ -329,27 +343,31 @@ export default function AdminOverview() {
           {(data?.topProducts ?? []).length === 0
             ? <p style={{ fontSize: 13, color: 'var(--muted)', textAlign: 'center', padding: '40px 0' }}>No data yet</p>
             : (
-              <ResponsiveContainer width="100%" height={180}>
-                <BarChart data={data.topProducts.map((p: any) => ({ name: p.name?.split(' ').slice(0, 2).join(' '), sold: p.sold ?? 0, revenue: p.revenue ?? 0 }))}
-                  margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
-                  <XAxis dataKey="name" tick={{ fontSize: 10, fill: 'var(--muted)' }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11, fill: 'var(--muted)' }} axisLine={false} tickLine={false} allowDecimals={false} />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Bar dataKey="sold" name="Units sold" radius={[6, 6, 0, 0]}>
-                    {(data.topProducts ?? []).map((_: any, i: number) => (
-                      <Cell key={i} fill={CATEGORY_COLORS[i % CATEGORY_COLORS.length]} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+              <div className="chart-scroll">
+                <div className="chart-scroll-inner">
+                  <ResponsiveContainer width="100%" height={180}>
+                    <BarChart data={data.topProducts.map((p: any) => ({ name: p.name?.split(' ').slice(0, 2).join(' '), sold: p.sold ?? 0, revenue: p.revenue ?? 0 }))}
+                      margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
+                      <XAxis dataKey="name" tick={{ fontSize: 10, fill: 'var(--muted)' }} axisLine={false} tickLine={false} />
+                      <YAxis tick={{ fontSize: 11, fill: 'var(--muted)' }} axisLine={false} tickLine={false} allowDecimals={false} />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Bar dataKey="sold" name="Units sold" radius={[6, 6, 0, 0]}>
+                        {(data.topProducts ?? []).map((_: any, i: number) => (
+                          <Cell key={i} fill={CATEGORY_COLORS[i % CATEGORY_COLORS.length]} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
             )
           }
         </Card>
       </div>
 
       {/* ── Bottom row: Recent orders + Low stock warnings ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 20 }}>
+      <div className="admin-row-bottom">
 
         {/* Recent orders */}
         <Card>

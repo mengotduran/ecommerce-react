@@ -87,7 +87,7 @@ export default function AdminUsers() {
       </div>
 
       {loading ? <p style={{ color: 'var(--muted)', fontSize: 14 }}>Loading…</p> : (
-        <div style={{ background: 'var(--surface)', border: '1px solid var(--border-color)', borderRadius: 14, overflow: 'hidden' }}>
+        <div className="table-scroll" style={{ background: 'var(--surface)', border: '1px solid var(--border-color)', borderRadius: 14 }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
@@ -119,7 +119,7 @@ export default function AdminUsers() {
                       </span>
                     </td>
                     <td style={{ padding: '12px 16px', color: 'var(--muted)' }}>{u._count?.orders ?? 0}</td>
-                    <td style={{ padding: '12px 16px', color: 'var(--muted)', fontSize: 12 }}>{new Date(u.createdAt).toLocaleDateString()}</td>
+                    <td style={{ padding: '12px 16px', color: 'var(--muted)', fontSize: 12, whiteSpace: 'nowrap' }}>{new Date(u.createdAt).toLocaleDateString()}</td>
                     <td style={{ padding: '12px 16px' }}>
                       {u.id !== authUser?.id && u.role !== 'SUPERADMIN' && (
                         <button

@@ -18,7 +18,7 @@
     "zustand": "^4.5.0"
   },
   "scripts": {
-    "dev": "next dev",
+    "dev": "NODE_OPTIONS=--dns-result-order=ipv4first next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

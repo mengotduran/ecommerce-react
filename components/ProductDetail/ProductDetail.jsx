@@ -41,15 +41,15 @@ const ProductDetail = ({ onAddToCart, likedItems, onToggleLike }) => {
 
         <div style={{ display: 'flex', gap: 48, alignItems: 'flex-start', flexWrap: 'wrap' }}>
           {/* Image column */}
-          <div style={{ flex: '1 1 380px', minWidth: 0, display: 'flex', gap: 12 }}>
+          <div className="product-gallery" style={{ flex: '1 1 380px', minWidth: 0 }}>
             {/* Thumbnail strip */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div className="product-thumbnails">
               {[0, 1, 2].map((i) => (
                 <div key={i} className="skeleton" style={{ width: 64, height: 64, borderRadius: 10 }} />
               ))}
             </div>
             {/* Main image */}
-            <div className="skeleton" style={{ flex: 1, height: 420, borderRadius: 16 }} />
+            <div className="skeleton product-main-image" style={{ borderRadius: 16 }} />
           </div>
 
           {/* Info column */}
@@ -115,11 +115,11 @@ const ProductDetail = ({ onAddToCart, likedItems, onToggleLike }) => {
 
           {/* ── Left: images ── */}
           <div style={{ flex: '1 1 380px', minWidth: 0 }}>
-            <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+            <div className="product-gallery">
 
               {/* Thumbnail strip */}
               {images.length > 1 && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flexShrink: 0 }}>
+                <div className="product-thumbnails">
                   {images.map((src, i) => (
                     <button
                       key={i}
@@ -142,11 +142,11 @@ const ProductDetail = ({ onAddToCart, likedItems, onToggleLike }) => {
               )}
 
               {/* Main image */}
-              <div style={{
-                flex: 1, borderRadius: 16, overflow: 'hidden',
+              <div className="product-main-image" style={{
+                borderRadius: 16, overflow: 'hidden',
                 background: 'var(--surface)',
                 border: '1px solid var(--border-color)',
-                position: 'relative', height: 420,
+                position: 'relative',
               }}>
                 {images.map((src, i) => (
                   <img

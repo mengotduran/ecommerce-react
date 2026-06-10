@@ -41,6 +41,25 @@ function ProductCard({ product, liked, onLike, onAddToCart }: {
   const [hovered, setHovered] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const idxRef      = useRef(0);
+  // On touch devices the hover-cycling hijacks the first tap (tap = hover),
+  // so the carousel only auto-cycles where a real pointer exists; touch swipes instead.
+  const [canHover] = useState(() => typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches);
+  const touchStart  = useRef<{ x: number; y: number } | null>(null);
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    const start = touchStart.current;
+    touchStart.current = null;
+    if (!start || images.length < 2) return;
+    const dx = e.changedTouches[0].clientX - start.x;
+    const dy = e.changedTouches[0].clientY - start.y;
+    // horizontal swipe → change image; a plain tap falls through to the Link
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      setActiveImg((i) => dx < 0 ? (i + 1) % images.length : (i - 1 + images.length) % images.length);
+    }
+  };
 
   // Preload all carousel images on mount so they're cached before hover
   useEffect(() => {
@@ -82,18 +101,25 @@ function ProductCard({ product, liked, onLike, onAddToCart }: {
         transition: 'border-color 200ms ease, box-shadow 200ms ease',
       }}
       onMouseEnter={e => {
+        if (!canHover) return;
         setHovered(true);
         (e.currentTarget as HTMLElement).style.borderColor = 'var(--foreground)';
         (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 24px rgba(0,0,0,0.08)';
       }}
       onMouseLeave={e => {
+        if (!canHover) return;
         setHovered(false);
         (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-color)';
         (e.currentTarget as HTMLElement).style.boxShadow = 'none';
       }}
     >
       {/* Image carousel */}
-      <Link href={`/product/${product.id}`} style={{ display: 'block', position: 'relative' }}>
+      <Link
+        href={`/product/${product.id}`}
+        style={{ display: 'block', position: 'relative' }}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+      >
         <div style={{ position: 'relative', width: '100%', paddingBottom: '80%', background: 'var(--surface)', overflow: 'hidden' }}>
           {images.map((src, i) => (
             <div key={src} style={{
@@ -220,6 +246,10 @@ function ProductCard({ product, liked, onLike, onAddToCart }: {
   );
 }
 
+const ROWS_PER_PAGE = 3;
+const CARD_MIN = 280;  // keep in sync with the grid's minmax()
+const GRID_GAP = 16;
+
 export default function ProductCatalogue() {
   const [products, setProducts]         = useState<Product[]>([]);
   const [loading, setLoading]           = useState(true);
@@ -227,6 +257,25 @@ export default function ProductCatalogue() {
   const { addToCart }                   = useCart();
   const { likedItems, toggleLike }      = useLikedItems();
   const searchParams                    = useSearchParams();
+
+  // Paged rendering: show ROWS_PER_PAGE rows at a time, load more as the
+  // sentinel below the grid scrolls into view
+  const [pages, setPages]             = useState(1);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [cols, setCols]               = useState(4);
+  const gridRef     = useRef<HTMLDivElement>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const calcCols = () => {
+      const w = gridRef.current?.clientWidth ?? 1200;
+      // mirrors repeat(auto-fill, minmax(CARD_MIN, 1fr))
+      setCols(Math.max(1, Math.floor((w + GRID_GAP) / (CARD_MIN + GRID_GAP))));
+    };
+    calcCols();
+    window.addEventListener('resize', calcCols);
+    return () => window.removeEventListener('resize', calcCols);
+  }, []);
 
   useEffect(() => {
     fetch(`${API_URL}/products/catalogue`)
@@ -252,6 +301,29 @@ export default function ProductCatalogue() {
     }
     return products.filter((p) => p.category === activeFilter);
   }, [products, activeFilter]);
+
+  // Restart at the first page whenever the filter changes
+  useEffect(() => { setPages(1); }, [activeFilter]);
+
+  const visible = filtered.slice(0, pages * cols * ROWS_PER_PAGE);
+  const hasMore = visible.length < filtered.length;
+
+  useEffect(() => {
+    if (loading || !hasMore) return;
+    const el = sentinelRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting || loadingMore) return;
+      setLoadingMore(true);
+      // brief delay so the loader is perceptible instead of popping in
+      setTimeout(() => {
+        setPages((p) => p + 1);
+        setLoadingMore(false);
+      }, 350);
+    }, { rootMargin: '80px' });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [loading, hasMore, loadingMore]);
 
 
   return (
@@ -299,7 +371,7 @@ export default function ProductCatalogue() {
       </div>
 
       {/* Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 16 }}>
+      <div ref={gridRef} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
         {loading
           ? Array(8).fill(0).map((_, i) => (
               <div key={i} style={{ border: '1px solid var(--border-color)', borderRadius: 16, overflow: 'hidden' }}>
@@ -316,7 +388,7 @@ export default function ProductCatalogue() {
                 </div>
               </div>
             ))
-          : filtered.map((product) => (
+          : visible.map((product) => (
               <ProductCard
                 key={product.id}
                 product={product}
@@ -327,6 +399,13 @@ export default function ProductCatalogue() {
             ))
         }
       </div>
+
+      {/* Pagination loader — loads the next rows when scrolled into view */}
+      {!loading && hasMore && (
+        <div ref={sentinelRef} style={{ display: 'flex', justifyContent: 'center', padding: '36px 0 8px' }}>
+          <span className="page-spinner" />
+        </div>
+      )}
 
     </section>
   );
