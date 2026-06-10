@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { useLikedStore } from './likedStore';
 
-type User = { id: string; email: string; name: string; role: 'CUSTOMER' | 'ADMIN' };
+type User = { id: string; email: string; name: string; role: 'CUSTOMER' | 'ADMIN' | 'SUPERADMIN' };
 
 type AuthState = {
   user: User | null;
