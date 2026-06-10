@@ -74,8 +74,8 @@ export default function Footer() {
           {/* Brand column */}
           <div style={{ gridColumn: 'span 1' }}>
             <Link href="/" style={{ textDecoration: 'none' }}>
-              <span style={{ fontSize: 18, fontWeight: 700, letterSpacing: '-0.4px', color: 'var(--foreground)' }}>
-                Shop<span style={{ color: 'var(--accent)' }}>Ease</span>
+              <span style={{ fontFamily: 'var(--font-mono), ui-monospace, monospace', fontSize: 20, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '-0.5px', color: 'var(--foreground)' }}>
+                Veloc<span style={{ color: 'var(--accent)' }}>aris</span>
               </span>
             </Link>
             <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.7, margin: '12px 0 24px', maxWidth: 220 }}>
@@ -181,7 +181,7 @@ export default function Footer() {
         {/* Divider */}
         <div style={{ borderTop: '1px solid var(--border-color)', padding: '20px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
           <p style={{ fontSize: 12, color: 'var(--muted)', margin: 0 }}>
-            © {new Date().getFullYear()} ShopEase. All rights reserved.
+            © {new Date().getFullYear()} Velocaris. All rights reserved.
           </p>
           <div style={{ display: 'flex', gap: 20 }}>
             {['Privacy policy', 'Terms of use', 'Cookies'].map((item) => (

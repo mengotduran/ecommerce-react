@@ -61,7 +61,7 @@ export default function RegisterPage() {
             Create account
           </h1>
           <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 28px' }}>
-            Join ShopEase today
+            Join Velocaris today
           </p>
 
           {error && (

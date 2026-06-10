@@ -33,8 +33,12 @@ const Navbar = () => {
 
   return (
     <header className="sticky top-0 z-[100] flex h-[52px] w-full items-center justify-between border-b border-border bg-background px-5">
-      <Link href="/" className="text-[16px] font-medium tracking-[-0.3px] text-foreground">
-        ShopEase
+      <Link
+        href="/"
+        className="text-[19px] font-extrabold uppercase tracking-[-0.5px] text-foreground"
+        style={{ fontFamily: 'var(--font-mono), ui-monospace, monospace' }}
+      >
+        Veloc<span className="text-accent">aris</span>
       </Link>
 
       <nav className="hidden items-center gap-7 sm:flex">

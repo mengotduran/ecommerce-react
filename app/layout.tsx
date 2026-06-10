@@ -10,8 +10,8 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const mono  = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' });
 
 export const metadata: Metadata = {
-  title: 'E-commerce',
-  description: 'Web site created using create-react-app',
+  title: 'Velocaris',
+  description: 'Premium cars & motorcycles for those who live to drive.',
   manifest: '/manifest.json',
   icons: {
     icon: '/favicon.ico',
