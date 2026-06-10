@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { CheckIcon } from '@heroicons/react/24/solid';
 import AddressForm from '../AddressForm';
@@ -12,6 +12,10 @@ const STEPS = ['Shipping', 'Payment'];
 const Checkout = ({ cart, order, onCaptureCheckout }) => {
   const [activeStep, setActiveStep] = useState(0);
   const [shippingData, setShippingData] = useState({});
+
+  // Steps swap in place, so the browser keeps the old scroll offset —
+  // without this you land mid/bottom of the next step
+  useEffect(() => { window.scrollTo(0, 0); }, [activeStep]);
 
   const checkoutToken = useMemo(() => {
     if (!cart.line_items?.length) return null;

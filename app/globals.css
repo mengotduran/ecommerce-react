@@ -342,19 +342,17 @@ body {
   gap: 14px;
 }
 
+/* chart/list rows below the stats: 2 cards per row on desktop */
 .admin-row-wide   { display: grid; grid-template-columns: 1fr 1.6fr; gap: 20px; }
 .admin-row-half   { display: grid; grid-template-columns: 1fr 1fr;   gap: 20px; }
 .admin-row-bottom { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; }
 
-/* Horizontal scrolling stays inside the wrapping card/element — pages
+/* Horizontal scrolling stays inside the wrapping element — pages
    themselves never gain sideways scroll (html/body are overflow-x: clip) */
-.chart-scroll,
 .table-scroll {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
-
-.chart-scroll-inner { min-width: 0; }
 
 .table-scroll table { min-width: 640px; }
 
@@ -363,14 +361,12 @@ body {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
   }
-  /* stack the chart/list rows — side-by-side they get squashed on phones */
+  /* phones: every chart/list card on its own row */
   .admin-row-wide,
   .admin-row-half,
   .admin-row-bottom {
     grid-template-columns: 1fr;
   }
-  /* keep charts at a readable width; the card scrolls sideways instead */
-  .chart-scroll-inner { min-width: 440px; }
   .admin-brand-logo { display: none; }
 }
 

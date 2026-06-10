@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { HeartIcon, ShoppingBagIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid';
+import { HeartIcon as HeartSolid, CheckIcon } from '@heroicons/react/24/solid';
 import { useCart } from '../hooks/useCart';
 import { useLikedItems } from '../hooks/useLikedItems';
 
@@ -39,6 +39,7 @@ function ProductCard({ product, liked, onLike, onAddToCart }: {
   const images = product.images?.length ? product.images : [product.image];
   const [activeImg, setActiveImg] = useState(0);
   const [hovered, setHovered] = useState(false);
+  const [added, setAdded] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const idxRef      = useRef(0);
   // On touch devices the hover-cycling hijacks the first tap (tap = hover),
@@ -227,17 +228,24 @@ function ProductCard({ product, liked, onLike, onAddToCart }: {
             <button
               type="button"
               aria-label="add to cart"
-              onClick={onAddToCart}
+              onClick={() => {
+                onAddToCart();
+                setAdded(true);
+                setTimeout(() => setAdded(false), 2000);
+              }}
               style={{
                 display: 'flex', alignItems: 'center', gap: 6,
-                background: '#ffffff', color: '#000000',
-                border: '1px solid #e5e5e5', borderRadius: 10,
+                background: added ? '#16a34a' : '#ffffff', color: '#000000',
+                border: `1px solid ${added ? '#16a34a' : '#e5e5e5'}`, borderRadius: 10,
                 padding: '7px 14px', fontSize: 12, fontWeight: 600,
                 cursor: 'pointer', letterSpacing: '-0.1px',
+                transition: 'background 200ms, border-color 200ms',
               }}
             >
-              <ShoppingBagIcon style={{ width: 13, height: 13 }} />
-              Add
+              {added
+                ? <><CheckIcon style={{ width: 13, height: 13 }} /> Added!</>
+                : <><ShoppingBagIcon style={{ width: 13, height: 13 }} /> Add</>
+              }
             </button>
           </div>
         </div>

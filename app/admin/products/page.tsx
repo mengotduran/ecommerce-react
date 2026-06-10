@@ -127,11 +127,11 @@ export default function AdminProducts() {
       </div>
 
       {loading ? <p style={{ color: 'var(--muted)', fontSize: 14 }}>Loading…</p> : (
-        <div style={{ background: 'var(--surface)', border: '1px solid var(--border-color)', borderRadius: 14, overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+        <div className="table-scroll" style={{ background: 'var(--surface)', border: '1px solid var(--border-color)', borderRadius: 14 }}>
+          <table style={{ width: '100%', minWidth: 760, borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
-                {['Product', 'Category', 'Price', 'Stock', 'Featured', 'Status', ''].map((h) => (
+                {['Product', 'Category', 'Price', 'Stock', 'Featured', 'Status'].map((h) => (
                   <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: 11, fontWeight: 600, letterSpacing: '0.4px', textTransform: 'uppercase', color: 'var(--muted)' }}>{h}</th>
                 ))}
               </tr>
@@ -187,22 +187,18 @@ export default function AdminProducts() {
                       </span>
                     </td>
 
-                    {/* Status column */}
+                    {/* Status + actions — one column so the icons sit under the Status header */}
                     <td style={{ padding: '12px 16px' }}>
                       {hasPendingDelete && (
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20, background: '#fef9c3', color: '#854d0e', border: '1px solid #fde047', whiteSpace: 'nowrap' }}>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20, background: '#fef9c3', color: '#854d0e', border: '1px solid #fde047', whiteSpace: 'nowrap', marginBottom: 6 }}>
                           <ClockIcon style={{ width: 11, height: 11 }} /> Deletion pending
                         </span>
                       )}
                       {hasRejectedDelete && (
-                        <span title={deleteReq!.reason ? `Reason: ${deleteReq!.reason}` : 'No reason provided'} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20, background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', cursor: 'help', whiteSpace: 'nowrap' }}>
+                        <span title={deleteReq!.reason ? `Reason: ${deleteReq!.reason}` : 'No reason provided'} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20, background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', cursor: 'help', whiteSpace: 'nowrap', marginBottom: 6 }}>
                           <XCircleIcon style={{ width: 11, height: 11 }} /> Deletion denied
                         </span>
                       )}
-                    </td>
-
-                    {/* Actions */}
-                    <td style={{ padding: '12px 16px' }}>
                       <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                         <button onClick={() => openEdit(p)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', padding: 4, transition: 'color 150ms' }}
                           onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--foreground)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted)')}>

@@ -60,6 +60,8 @@ function InfoContent({ product, onAddToCart, isLiked, onToggleLike, compact = fa
   onToggleLike: () => void;
   compact?: boolean;
 }) {
+  const [added, setAdded] = useState(false);
+
   return (
     <>
       <p style={{ ...MONO, color: s.category, margin: 0 }}>{product.category}</p>
@@ -79,11 +81,22 @@ function InfoContent({ product, onAddToCart, isLiked, onToggleLike, compact = fa
         ))}
       </ul>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <button type="button" onClick={onAddToCart} style={{
-          background: s.btnBg, color: s.btnText, border: 'none',
-          borderRadius: 8, padding: '12px 28px', fontSize: 13, fontWeight: 600,
-          cursor: 'pointer', letterSpacing: '-0.2px',
-        }}>Add to cart</button>
+        <button
+          type="button"
+          onClick={() => {
+            onAddToCart();
+            setAdded(true);
+            setTimeout(() => setAdded(false), 2000);
+          }}
+          style={{
+            background: added ? '#16a34a' : s.btnBg, color: s.btnText, border: 'none',
+            borderRadius: 8, padding: '12px 28px', fontSize: 13, fontWeight: 600,
+            cursor: 'pointer', letterSpacing: '-0.2px',
+            transition: 'background 200ms',
+          }}
+        >
+          {added ? '✓ Added!' : 'Add to cart'}
+        </button>
         <button
           type="button"
           aria-label={isLiked ? 'remove from wishlist' : 'add to wishlist'}

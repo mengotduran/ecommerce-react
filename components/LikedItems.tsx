@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { HeartIcon } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid';
-import { ShoppingBagIcon } from '@heroicons/react/24/solid';
+import { ShoppingBagIcon, CheckIcon } from '@heroicons/react/24/solid';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { useLikedItems } from '../hooks/useLikedItems';
 import { useCart } from '../hooks/useCart';
@@ -33,6 +33,7 @@ export default function LikedItems() {
   const { addToCart }              = useCart();
   const [products, setProducts]    = useState<Product[]>([]);
   const [loading, setLoading]      = useState(true);
+  const [addedId, setAddedId]      = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -151,11 +152,17 @@ export default function LikedItems() {
                         </button>
                         <button
                           type="button"
-                          onClick={() => addToCart(product.id, 1, { name: product.name, price: Number(product.price), image: img })}
-                          style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--accent)', color: '#000', border: 'none', borderRadius: 10, padding: '7px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+                          onClick={() => {
+                            addToCart(product.id, 1, { name: product.name, price: Number(product.price), image: img });
+                            setAddedId(product.id);
+                            setTimeout(() => setAddedId((cur) => cur === product.id ? null : cur), 2000);
+                          }}
+                          style={{ display: 'flex', alignItems: 'center', gap: 6, background: addedId === product.id ? '#16a34a' : 'var(--accent)', color: '#000', border: 'none', borderRadius: 10, padding: '7px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'background 200ms' }}
                         >
-                          <ShoppingBagIcon style={{ width: 13, height: 13 }} />
-                          Add
+                          {addedId === product.id
+                            ? <><CheckIcon style={{ width: 13, height: 13 }} /> Added!</>
+                            : <><ShoppingBagIcon style={{ width: 13, height: 13 }} /> Add</>
+                          }
                         </button>
                       </div>
                     </div>

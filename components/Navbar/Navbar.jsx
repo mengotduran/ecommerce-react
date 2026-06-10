@@ -11,16 +11,31 @@ import { useAuthStore } from '../../store/authStore';
 
 const categories = ['Supercars', 'Sports Cars', 'Muscle Cars', 'Cruisers', 'Sport Bikes', 'Adventure'];
 
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
 const Navbar = () => {
   const pathname = usePathname();
   const { cart } = useCart();
   const { likedItems } = useLikedItems();
   const user   = useAuthStore((s) => s.user);
+  const token  = useAuthStore((s) => s.token);
   const logout = useAuthStore((s) => s.logout);
   const [showCats, setShowCats]   = useState(false);
   const [showUser, setShowUser]   = useState(false);
+  const [pendingOrders, setPendingOrders] = useState(0);
   const userRef = useRef(null);
   const catsRef = useRef(null);
+
+  // Badge on the orders icon = orders still awaiting approval; clears once
+  // an admin moves them past PENDING. Re-checked on every route change so
+  // it picks up new checkouts and status updates without a manual refresh.
+  useEffect(() => {
+    if (!user || !token) { setPendingOrders(0); return; }
+    fetch(`${API}/orders/mine`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => r.json())
+      .then((orders) => setPendingOrders(Array.isArray(orders) ? orders.filter((o) => o.status === 'PENDING').length : 0))
+      .catch(() => {});
+  }, [user, token, pathname]);
 
   useEffect(() => {
     const handler = (e) => {
@@ -127,6 +142,18 @@ const Navbar = () => {
             onMouseLeave={(e) => (e.currentTarget.style.color = pathname === '/orders' ? 'var(--accent)' : 'var(--muted)')}
           >
             <ArchiveBoxIcon style={{ width: 18, height: 18 }} />
+            {pendingOrders > 0 && (
+              <span style={{
+                position: 'absolute', top: -5, right: -6,
+                background: '#e11d48', color: '#fff',
+                fontSize: 9, fontWeight: 700, lineHeight: 1,
+                minWidth: 14, height: 14, borderRadius: 7,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                padding: '0 3px',
+              }}>
+                {pendingOrders}
+              </span>
+            )}
           </Link>
         )}
 
