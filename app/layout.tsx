@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar/NavbarLazy';
 import SearchOverlay from '../components/SearchOverlay';
 import Footer from '../components/Footer';
 import StoreHydrator from '../components/StoreHydrator';
+import ScrollManager from '../components/ScrollManager';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const mono  = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' });
@@ -32,6 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${inter.variable} ${mono.variable}`}>
       <body style={{ fontFamily: 'var(--font-inter), system-ui, sans-serif' }}>
         <StoreHydrator />
+        <ScrollManager />
         <Navbar />
         <SearchOverlay />
         {children}

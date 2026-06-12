@@ -81,7 +81,7 @@ export default function Footer() {
           <div style={{ gridColumn: 'span 1' }}>
             <Link href="/" style={{ textDecoration: 'none' }}>
               <span style={{ fontFamily: 'var(--font-mono), ui-monospace, monospace', fontSize: 20, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '-0.5px', color: 'var(--foreground)' }}>
-                Veloc<span style={{ color: 'var(--accent)' }}>aris</span>
+                Veloc<span style={{ color: 'var(--accent-dark)' }}>aris</span>
               </span>
             </Link>
             <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.7, margin: '12px 0 24px', maxWidth: 220 }}>
@@ -94,7 +94,7 @@ export default function Footer() {
                   href={href}
                   aria-label={label}
                   style={{ width: 34, height: 34, borderRadius: 8, border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--muted)', textDecoration: 'none', transition: 'border-color 200ms, color 200ms' }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent)'; (e.currentTarget as HTMLElement).style.color = 'var(--accent)'; }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent-dark)'; (e.currentTarget as HTMLElement).style.color = 'var(--accent-dark)'; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-color)'; (e.currentTarget as HTMLElement).style.color = 'var(--muted)'; }}
                 >
                   {icon}
@@ -114,7 +114,7 @@ export default function Footer() {
                   <Link
                     href={href}
                     style={{ fontSize: 13, color: 'var(--muted)', textDecoration: 'none', transition: 'color 150ms' }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--accent)')}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--accent-dark)')}
                     onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted)')}
                   >
                     {label}
@@ -135,7 +135,7 @@ export default function Footer() {
                   <a
                     href={href}
                     style={{ fontSize: 13, color: 'var(--muted)', textDecoration: 'none', transition: 'color 150ms' }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--accent)')}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--accent-dark)')}
                     onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted)')}
                   >
                     {label}
@@ -165,14 +165,14 @@ export default function Footer() {
                   color: 'var(--foreground)', fontSize: 13, outline: 'none',
                   transition: 'border-color 150ms',
                 }}
-                onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--accent)')}
+                onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--accent-dark)')}
                 onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--border-color)')}
               />
               <button
                 type="submit"
                 style={{
                   padding: '10px 0', borderRadius: 8, border: 'none', cursor: 'pointer',
-                  background: submitted ? '#16a34a' : 'var(--accent)',
+                  background: submitted ? '#16a34a' : 'var(--accent-dark)',
                   color: '#000', fontSize: 13, fontWeight: 600,
                   transition: 'background 300ms',
                 }}

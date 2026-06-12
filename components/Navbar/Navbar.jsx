@@ -16,15 +16,41 @@ const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 const Navbar = () => {
   const pathname = usePathname();
   const { cart } = useCart();
-  const { likedItems } = useLikedItems();
+  const { likedItems, prune } = useLikedItems();
   const user   = useAuthStore((s) => s.user);
   const token  = useAuthStore((s) => s.token);
   const logout = useAuthStore((s) => s.logout);
   const [showCats, setShowCats]   = useState(false);
   const [showUser, setShowUser]   = useState(false);
   const [pendingOrders, setPendingOrders] = useState(0);
+  const [hidden, setHidden] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const userRef = useRef(null);
   const catsRef = useRef(null);
+  const lastScrollY = useRef(0);
+
+  // Hide the header on scroll-down, reveal it again on scroll-up — on every page.
+  // A small delta threshold filters out trackpad/momentum jitter that would
+  // otherwise flip the direction every frame and make the transition feel jumpy.
+  useEffect(() => {
+    let ticking = false;
+    const handleScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const y = Math.max(window.scrollY, 0);
+        const delta = y - lastScrollY.current;
+        setScrolled(y > 80);
+        if (Math.abs(delta) > 5) {
+          setHidden(delta > 0 && y > 80);
+          lastScrollY.current = y;
+        }
+        ticking = false;
+      });
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Badge on the orders icon = orders still awaiting approval; clears once
   // an admin moves them past PENDING. Re-checked on every route change so
@@ -36,6 +62,16 @@ const Navbar = () => {
       .then((orders) => setPendingOrders(Array.isArray(orders) ? orders.filter((o) => o.status === 'PENDING').length : 0))
       .catch(() => {});
   }, [user, token, pathname]);
+
+  // Drop any liked-item IDs that no longer exist (e.g. after a catalogue
+  // reseed), so the wishlist badge count matches what's actually shown.
+  useEffect(() => {
+    if (likedItems.length === 0) return;
+    fetch(`${API}/products`)
+      .then((r) => r.json())
+      .then((products) => prune(products.map((p) => p.id)))
+      .catch(() => {});
+  }, [likedItems.length, prune]);
 
   useEffect(() => {
     const handler = (e) => {
@@ -49,74 +85,119 @@ const Navbar = () => {
   // Auth pages render their own logo; no navbar (Footer hides on these too)
   if (pathname === '/login' || pathname === '/register') return null;
 
+  // Homepage: no solid bar — icons float transparently over HeroSlider,
+  // which already renders the centered VELOCARIS wordmark as the logo.
+  const isHome = pathname === '/';
+  // Once scrolled past the hero, the transparent home header gains a solid
+  // background (like every other page) so its icons stay visible over the
+  // white catalogue — needed for the fixed header to be legible on scroll-up.
+  const mutedColor = isHome && !scrolled ? 'var(--home-nav-fg)' : 'var(--muted)';
+  const hoverColor = isHome && !scrolled ? 'var(--home-nav-fg-hover)' : 'var(--foreground)';
+
   return (
-    <header className="sticky top-0 z-[100] flex h-[52px] w-full items-center justify-between border-b border-border bg-background px-5">
-      <Link
-        href="/"
-        className="text-[19px] font-extrabold uppercase tracking-[-0.5px] text-foreground"
-        style={{ fontFamily: 'var(--font-mono), ui-monospace, monospace' }}
-      >
-        Veloc<span className="text-accent">aris</span>
-      </Link>
-
-      <nav className="hidden items-center gap-7 sm:flex">
+    <header
+      className={isHome
+        ? `fixed top-0 left-0 z-[100] flex h-[52px] w-full items-center justify-between sm:justify-end px-5${scrolled ? ' border-b border-border bg-background' : ''}`
+        : 'sticky top-0 z-[100] flex h-[52px] w-full items-center justify-between border-b border-border bg-background px-5'
+      }
+      style={{ transform: hidden ? 'translateY(-100%)' : 'translateY(0)', transition: 'transform 300ms ease, background-color 200ms ease', willChange: 'transform' }}
+    >
+      {!isHome && (
         <Link
-          href="/?badge=new#catalogue"
-          className="text-[13px] text-muted transition-colors hover:text-foreground"
+          href="/"
+          className="text-[19px] font-extrabold uppercase tracking-[-0.5px] text-foreground"
+          style={{ fontFamily: 'var(--font-mono), ui-monospace, monospace' }}
         >
-          New arrivals
+          Veloc<span className="text-accent">aris</span>
         </Link>
+      )}
 
-        {/* Categories dropdown */}
-        <div ref={catsRef} style={{ position: 'relative' }}>
-          <button
-            type="button"
-            onClick={() => setShowCats((v) => !v)}
-            className="flex items-center gap-1 text-[13px] text-muted transition-colors hover:text-foreground"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+      {/* Mobile home logo — top-left, always visible (no centered hero
+          wordmark on mobile). */}
+      {isHome && (
+        <Link
+          href="/"
+          className="text-[15px] font-extrabold uppercase tracking-[-0.5px] text-foreground sm:hidden"
+          style={{ fontFamily: 'var(--font-mono), ui-monospace, monospace' }}
+        >
+          Veloc<span className="text-accent">aris</span>
+        </Link>
+      )}
+
+      {/* Desktop home logo — centered, fades in once scrolled past the hero
+          (whose own centered wordmark scrolls out of view), including on
+          scroll-up reveal. Always mounted so the fade is smooth, not a
+          mount/unmount blink. */}
+      {isHome && (
+        <Link
+          href="/"
+          className={`hidden sm:block absolute left-1/2 -translate-x-1/2 text-[19px] font-extrabold uppercase tracking-[-0.5px] text-foreground ${scrolled ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+          style={{ fontFamily: 'var(--font-mono), ui-monospace, monospace', transition: 'opacity 250ms ease' }}
+        >
+          Veloc<span className="text-accent">aris</span>
+        </Link>
+      )}
+
+      {!isHome && (
+        <nav className="hidden items-center gap-7 sm:flex">
+          <Link
+            href="/?badge=new#catalogue"
+            className="text-[13px] text-muted transition-colors hover:text-foreground"
           >
-            Categories
-            <ChevronDownIcon
-              className="h-[13px] w-[13px]"
-              style={{ transition: 'transform 200ms ease', transform: showCats ? 'rotate(180deg)' : 'rotate(0deg)' }}
-            />
-          </button>
+            New arrivals
+          </Link>
 
-          {showCats && (
-            <div style={{
-              position: 'absolute', top: 'calc(100% + 14px)', left: '50%', transform: 'translateX(-50%)',
-              background: 'var(--background)', border: '1px solid var(--border-color)',
-              borderRadius: 12, padding: '6px 0', minWidth: 170,
-              boxShadow: '0 8px 24px rgba(0,0,0,0.10)',
-              zIndex: 200,
-            }}>
-              {categories.map((cat) => (
-                <Link
-                  key={cat}
-                  href={`/?category=${encodeURIComponent(cat)}#catalogue`}
-                  onClick={() => setShowCats(false)}
-                  style={{
-                    display: 'block', padding: '9px 18px',
-                    fontSize: 13, color: 'var(--foreground)', textDecoration: 'none',
-                    transition: 'background 150ms',
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--surface)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-                >
-                  {cat}
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
+          {/* Categories dropdown */}
+          <div ref={catsRef} style={{ position: 'relative' }}>
+            <button
+              type="button"
+              onClick={() => setShowCats((v) => !v)}
+              className="flex items-center gap-1 text-[13px] text-muted transition-colors hover:text-foreground"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+            >
+              Categories
+              <ChevronDownIcon
+                className="h-[13px] w-[13px]"
+                style={{ transition: 'transform 200ms ease', transform: showCats ? 'rotate(180deg)' : 'rotate(0deg)' }}
+              />
+            </button>
 
-        <Link
-          href="/?badge=sale#catalogue"
-          className="text-[13px] text-muted transition-colors hover:text-foreground"
-        >
-          Sale
-        </Link>
-      </nav>
+            {showCats && (
+              <div style={{
+                position: 'absolute', top: 'calc(100% + 14px)', left: '50%', transform: 'translateX(-50%)',
+                background: 'var(--background)', border: '1px solid var(--border-color)',
+                borderRadius: 12, padding: '6px 0', minWidth: 170,
+                boxShadow: '0 8px 24px rgba(0,0,0,0.10)',
+                zIndex: 200,
+              }}>
+                {categories.map((cat) => (
+                  <Link
+                    key={cat}
+                    href={`/?category=${encodeURIComponent(cat)}#catalogue`}
+                    onClick={() => setShowCats(false)}
+                    style={{
+                      display: 'block', padding: '9px 18px',
+                      fontSize: 13, color: 'var(--foreground)', textDecoration: 'none',
+                      transition: 'background 150ms',
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--surface)')}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                  >
+                    {cat}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <Link
+            href="/?badge=sale#catalogue"
+            className="text-[13px] text-muted transition-colors hover:text-foreground"
+          >
+            Sale
+          </Link>
+        </nav>
+      )}
 
       <div className="flex items-center gap-3">
         {/* Search — desktop only */}
@@ -125,9 +206,9 @@ const Navbar = () => {
           aria-label="search"
           onClick={() => window.dispatchEvent(new CustomEvent('open-search'))}
           className="flex"
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: 'var(--muted)', alignItems: 'center', transition: 'color 150ms' }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--foreground)')}
-          onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted)')}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: mutedColor, alignItems: 'center', transition: 'color 150ms' }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = hoverColor)}
+          onMouseLeave={(e) => (e.currentTarget.style.color = mutedColor)}
         >
           <MagnifyingGlassIcon style={{ width: 18, height: 18 }} />
         </button>
@@ -137,9 +218,9 @@ const Navbar = () => {
             href="/orders"
             aria-label="orders"
             title="My orders"
-            style={{ position: 'relative', color: pathname === '/orders' ? 'var(--accent)' : 'var(--muted)', display: 'flex', alignItems: 'center', transition: 'color 150ms' }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--foreground)')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = pathname === '/orders' ? 'var(--accent)' : 'var(--muted)')}
+            style={{ position: 'relative', color: pathname === '/orders' ? 'var(--accent)' : mutedColor, display: 'flex', alignItems: 'center', transition: 'color 150ms' }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = hoverColor)}
+            onMouseLeave={(e) => (e.currentTarget.style.color = pathname === '/orders' ? 'var(--accent)' : mutedColor)}
           >
             <ArchiveBoxIcon style={{ width: 18, height: 18 }} />
             {pendingOrders > 0 && (
@@ -160,9 +241,9 @@ const Navbar = () => {
         <Link
           href="/liked"
           aria-label="wishlist"
-          style={{ position: 'relative', color: 'var(--muted)', display: 'flex', alignItems: 'center', transition: 'color 150ms' }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--foreground)')}
-          onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted)')}
+          style={{ position: 'relative', color: mutedColor, display: 'flex', alignItems: 'center', transition: 'color 150ms' }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = hoverColor)}
+          onMouseLeave={(e) => (e.currentTarget.style.color = mutedColor)}
         >
           <HeartIcon style={{ width: 18, height: 18 }} />
           {likedItems.length > 0 && (
@@ -182,8 +263,13 @@ const Navbar = () => {
         {pathname !== '/checkout' && (
           <Link
             href="/cart"
-            className="flex items-center gap-1.5 rounded-lg border border-border px-[14px] py-[6px] text-[13px] font-medium"
-            style={{ background: '#ffffff', color: '#000000' }}
+            className={isHome ? 'flex items-center gap-1.5 px-[14px] py-[6px] text-[13px] font-medium' : 'flex items-center gap-1.5 rounded-lg border border-border px-[14px] py-[6px] text-[13px] font-medium'}
+            style={isHome
+              ? { background: 'transparent', color: mutedColor, transition: 'color 150ms' }
+              : { background: '#ffffff', color: '#000000' }
+            }
+            onMouseEnter={isHome ? (e) => (e.currentTarget.style.color = hoverColor) : undefined}
+            onMouseLeave={isHome ? (e) => (e.currentTarget.style.color = mutedColor) : undefined}
           >
             <ShoppingCartIcon className="h-[16px] w-[16px]" />
             Cart ({cart.total_items})
@@ -256,11 +342,10 @@ const Navbar = () => {
         ) : (
           <Link
             href="/login"
-            style={{
-              padding: '6px 14px', borderRadius: 8, fontSize: 13, fontWeight: 500,
-              background: 'var(--accent)', color: '#000', textDecoration: 'none',
-              transition: 'opacity 150ms',
-            }}
+            style={isHome
+              ? { padding: '6px 14px', fontSize: 13, fontWeight: 500, background: 'transparent', color: 'var(--accent)', textDecoration: 'none', transition: 'opacity 150ms' }
+              : { padding: '6px 14px', borderRadius: 8, fontSize: 13, fontWeight: 500, background: 'var(--accent)', color: '#000', textDecoration: 'none', transition: 'opacity 150ms' }
+            }
             onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.85')}
             onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
           >

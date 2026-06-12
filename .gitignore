@@ -13,6 +13,9 @@
 /.next/
 /out/
 
+# source images, already copied into public/products
+/carsandbikes
+
 # misc
 .DS_Store
 .env

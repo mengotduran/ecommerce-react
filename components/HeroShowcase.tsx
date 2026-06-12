@@ -19,7 +19,7 @@ type Product = {
 };
 
 const API_URL     = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-const NAVBAR_H    = 52;    // matches h-[52px] in Navbar
+const NAVBAR_H    = 0;     // homepage navbar overlays HeroSlider and reserves no layout space
 const SECTION_VH  = 50;    // viewport-heights per section (desktop)
 const LERP        = 0.08;  // interpolation factor — lower = smoother/slower
 const M_SECTION_VH = 36;   // mobile: shorter runway per product = faster swaps
@@ -202,8 +202,11 @@ export default function HeroShowcase() {
       if (scrollRafRef.current !== null) return;
       scrollRafRef.current = requestAnimationFrame(() => {
         scrollRafRef.current = null;
-        const sH  = window.innerHeight * SECTION_VH / 100;
-        const raw = (window.scrollY - NAVBAR_H) / sH;
+        const sH    = window.innerHeight * SECTION_VH / 100;
+        // The first section (HeroSlider) is a full viewport tall — don't start
+        // the scroll-linked animation until the user scrolls past it.
+        const heroH = window.innerHeight;
+        const raw = (window.scrollY - NAVBAR_H - heroH) / sH;
         targetFracRef.current = Math.max(0, Math.min(raw, products.length - 1));
         startLerpLoop();
       });
@@ -324,11 +327,12 @@ export default function HeroShowcase() {
   }, [dominant, isDesktop]);
 
   const scrollToProduct = (i: number) => {
-    const sH = window.innerHeight * SECTION_VH / 100;
+    const sH    = window.innerHeight * SECTION_VH / 100;
+    const heroH = window.innerHeight;
     // Jump the page instantly; lerp handles the smooth panel animation
     targetFracRef.current = i;
     startLerpLoop();
-    window.scrollTo({ top: NAVBAR_H + i * sH, behavior: 'instant' as ScrollBehavior });
+    window.scrollTo({ top: NAVBAR_H + heroH + i * sH, behavior: 'instant' as ScrollBehavior });
   };
 
   // Mobile: jump the page so product i is the pinned one (instant, like desktop)

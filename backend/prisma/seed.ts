@@ -2,86 +2,52 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-const img  = (id: string) => `https://images.unsplash.com/${id}?w=1400&q=90&auto=format&fit=crop`;
-const cimg = (id: string) => `https://images.unsplash.com/${id}?w=800&q=85&auto=format&fit=crop`;
+// Local images live in /public/products/<slug>/<file>
+const p = (slug: string, ...files: string[]) => files.map((f) => `/products/${slug}/${f}`);
 
-// All IDs verified 200 OK with confirmed descriptions from unsplash.com
 const featured = [
   {
-    name: 'Ferrari SF90 Stradale',
-    price: 507000,
+    name: 'Bugatti Brouillard',
+    price: 20000000,
     category: 'Supercars',
-    description: 'The most powerful Ferrari road car ever built. 1,000 hp hybrid V8, 0-100 km/h in 2.5 s, and an all-wheel-drive system that plants every watt of power.',
+    description: 'A one-of-one bespoke hypercar built under Bugatti\'s Solitaire coachbuilding programme. The Brouillard is the swan song for the legendary quad-turbo W16, wrapped in a hand-formed body unlike any other Bugatti on the road.',
     features: [
-      '986 hp hybrid V8 engine',
+      '1,578 hp quad-turbo W16 engine',
+      'One-of-one bespoke coachbuilt body',
+      'Carbon fibre monocoque chassis',
+      'Hand-finished bespoke interior',
+    ],
+    images: p('bugatti-brouillard', '1.jpg', '2.jpg', '3.jpg', '4.jpg'),
+  },
+  {
+    name: 'Lamborghini Revuelto',
+    price: 608358,
+    category: 'Supercars',
+    description: 'Lamborghini\'s V12 hybrid flagship. The Revuelto combines a screaming naturally aspirated V12 with three electric motors for a combined 1,015 hp, an 8-speed dual-clutch transmission, and active aerodynamics that adapt to every corner.',
+    features: [
+      '1,015 hp hybrid V12 powertrain',
       '0-100 km/h in 2.5 seconds',
-      'All-wheel drive with e-Diff',
-      'Top speed 340 km/h',
+      '8-speed dual-clutch transmission',
+      'Active aerodynamics and torque vectoring',
     ],
-    images: [
-      img('photo-1751467928515-14a3515b99a8'),
-      img('photo-1600510424051-30d592a75353'),
-      img('photo-1543071671-d678538d6618'),
-      img('photo-1621953459196-2bab8e28331a'),
-    ],
+    images: p('lamborghini-revuelto', '1.jpg', '2.jpg', '3.jpg', '4.jpg'),
   },
   {
-    name: 'Lamborghini Huracan STO',
-    price: 329000,
-    category: 'Supercars',
-    description: 'Born on the racetrack and built for the road. The Huracan STO packs 640 hp, rear-wheel drive, and a naturally aspirated V10 that screams to 8,000 rpm.',
+    name: 'Tesla Cybertruck',
+    price: 79990,
+    category: 'Adventure',
+    description: 'An all-electric pickup built on an ultra-hard 30X cold-rolled stainless steel exoskeleton. With up to 600 hp from a dual-motor all-wheel-drive setup, adaptive air suspension, and a 325-mile range, the Cybertruck redefines what a truck can be.',
     features: [
-      '640 hp naturally aspirated V10',
-      'Rear-wheel drive only',
-      'Carbon fibre body panels',
-      '0-100 km/h in 3.0 seconds',
+      '600 hp dual-motor all-wheel drive',
+      '325-mile range',
+      '30X cold-rolled stainless steel exoskeleton',
+      'Adaptive air suspension',
     ],
-    images: [
-      img('photo-1617650728468-8581e439c864'),
-      img('photo-1689589079779-d442bba9ef97'),
-      img('photo-1767907571229-01cf4ba03590'),
-      img('photo-1724391114112-c83ad59f1d5f'),
-    ],
-  },
-  {
-    name: 'Porsche 911 GT3 RS',
-    price: 228000,
-    category: 'Sports Cars',
-    description: 'Precision engineering at its peak. The GT3 RS uses aerodynamic downforce, a 525 hp flat-six, and a PDK gearbox tuned to the millisecond.',
-    features: [
-      '525 hp 4.0L flat-six',
-      'Active aerodynamics system',
-      '7-speed PDK dual-clutch',
-      'Weissach package available',
-    ],
-    images: [
-      img('photo-1756990637536-714b76296a30'),
-      img('photo-1622398703904-7ae5d55f8e1a'),
-      img('photo-1704476944918-c1258561ebb9'),
-      img('photo-1722385640799-4ee84eb90038'),
-    ],
-  },
-  {
-    name: 'Harley-Davidson Fat Boy',
-    price: 21499,
-    category: 'Cruisers',
-    description: 'An icon reborn. The Fat Boy pairs a Milwaukee-Eight 114 engine with solid-disc wheels and a stance that turns every street into a runway.',
-    features: [
-      'Milwaukee-Eight 114 V-twin',
-      'Solid aluminium disc wheels',
-      'Keyless ignition and security',
-      'Reflex defensive rider systems',
-    ],
-    images: [
-      img('photo-1656420731892-a4ece094df5a'),
-      img('photo-1558981396-5fcf84bdf14d'),
-      img('photo-1473147437169-91ac8cebc017'),
-      img('photo-1645021081538-15ecfc18269c'),
-    ],
+    images: p('tesla-cybertruck', '1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg'),
   },
   {
     name: 'Kawasaki Ninja H2R',
-    price: 57000,
+    price: 62000,
     category: 'Sport Bikes',
     description: 'The most extreme production motorcycle on earth. 310 hp from a supercharged inline-four, a carbon-fibre airframe, and aerodynamic wings designed in a wind tunnel.',
     features: [
@@ -90,111 +56,119 @@ const featured = [
       'Carbon fibre trellis frame',
       'Brembo Stylema brake calipers',
     ],
-    images: [
-      img('photo-1763244737839-220b4cd0259e'),
-      img('photo-1692317785388-a7d076077d9d'),
-      img('photo-1683455425959-8f5bf1e8fbfb'),
-      img('photo-1610708946112-a7db73966c46'),
+    images: p('kawasaki-ninja-h2r', '1.avif', '2.avif', '3.jpg', '4.png'),
+  },
+  {
+    name: 'Lamborghini Huracan Evo',
+    price: 261000,
+    category: 'Supercars',
+    description: 'A 631 hp naturally aspirated V10, rear-wheel steering, and a fully reworked aerodynamic package make the Huracan Evo one of the sharpest-handling supercars on sale.',
+    features: [
+      '631 hp naturally aspirated V10',
+      'Rear-wheel steering',
+      'Lamborghini Dynamic Steering',
+      '0-100 km/h in 2.9 seconds',
     ],
+    images: p('lamborghini-huracan-evo', '1.jpg', '2.jpg', '3.jpg', '4.jpg'),
   },
 ];
 
 const catalogue = [
   {
-    name: 'McLaren 720S',
-    price: 299000,
+    name: 'Lamborghini Reventon Roadster',
+    price: 2000000,
     category: 'Supercars',
-    badge: 'new',
-    description: '720 hp twin-turbo V8, dihedral doors, and a carbon fibre monocoque that weighs just 1,283 kg. Pure McLaren DNA.',
-    images: [
-      cimg('photo-1709221387689-715c3fcac442'), // b&w dark supercar
-      cimg('photo-1761554619924-627006522506'), // black McLaren P1 indoors
-      cimg('photo-1577975396515-a6a5271697f3'), // black supercar studio
-    ],
-  },
-  {
-    name: 'Shelby GT500',
-    price: 74995,
-    category: 'Muscle Cars',
-    badge: 'hot',
-    description: '760 hp supercharged V8, Tremec 7-speed dual-clutch, and magnetic ride control. The most powerful street-legal Mustang ever.',
-    images: [
-      cimg('photo-1724391114153-aab0c652371c'), // dark muscle car
-      cimg('photo-1571290130194-08c1cf854980'), // brown Shelby coupe
-      cimg('photo-1587750113469-d2ba02441e8f'), // black muscle car sunset
-    ],
-  },
-  {
-    name: 'Porsche Cayman GT4',
-    price: 102000,
-    category: 'Sports Cars',
-    badge: null,
-    description: 'Mid-engine perfection. The GT4 RS borrows the 911 GT3 flat-six and puts it directly behind your head.',
-    images: [
-      cimg('photo-1622398703904-7ae5d55f8e1a'), // silver Porsche on black asphalt
-      cimg('photo-1756990637536-714b76296a30'), // dark Porsche rear view
-      cimg('photo-1704476944918-c1258561ebb9'), // car on black background
-    ],
-  },
-  {
-    name: 'Ducati Panigale V4',
-    price: 28395,
-    category: 'Sport Bikes',
-    badge: 'hot',
-    description: '214 hp Desmosedici Stradale V4 engine, aerodynamic winglets, and Ducati Cornering ABS. A MotoGP machine for the street.',
-    images: [
-      cimg('photo-1568772585407-9361f9bf3a87'), // red/black sports bike
-      cimg('photo-1559051992-824a1d4353fb'), // black/red Ducati
-      cimg('photo-1754719049888-29f34b506b85'), // red Ducati front detail
-    ],
-  },
-  {
-    name: 'Triumph Scrambler 1200',
-    price: 16500,
-    category: 'Adventure',
-    badge: 'new',
-    description: 'An adventure-ready twin with 89 hp, 10 inches of ground clearance, and long-travel suspension ready for any terrain you throw at it.',
-    images: [
-      cimg('photo-1610708946112-a7db73966c46'), // white/black motorcycle dark room
-      cimg('photo-1683455425978-c40c16590b0b'), // motorcycle front close-up
-      cimg('photo-1449426468159-d96dbf08f19f'), // motorcycle on road
-    ],
-  },
-  {
-    name: 'BMW M4 Competition',
-    price: 84500,
-    category: 'Sports Cars',
-    badge: null,
-    description: '503 hp twin-turbo inline-six, M xDrive all-wheel drive, and the most aggressive M4 styling since the E30. Track-ready from the factory.',
-    images: [
-      cimg('photo-1724391114112-c83ad59f1d5f'), // black sports car front dark
-      cimg('photo-1637088500061-32cc39d33a7b'), // black sports car doors open
-      cimg('photo-1722385640799-4ee84eb90038'), // black car in dark
-    ],
-  },
-  {
-    name: 'Indian Scout',
-    price: 12299,
-    category: 'Cruisers',
     badge: 'sale',
-    description: '100 hp liquid-cooled V-twin in a low-slung frame with genuine leather seat, wide handlebars, and genuine American soul.',
-    images: [
-      cimg('photo-1683455425959-8f5bf1e8fbfb'), // motorcycle close-up dark
-      cimg('photo-1656420731892-a4ece094df5a'), // black motorcycle black background
-      cimg('photo-1473147437169-91ac8cebc017'), // black bone motorcycle on black bg
-    ],
+    description: 'One of only 15 ever built. The Reventon Roadster pairs a 6.5L V12 with a jet-fighter-inspired body, making it one of the rarest and most collectible Lamborghinis in existence.',
+    images: p('lamborghini-reventon-roadster', '1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg'),
   },
   {
-    name: 'Honda CBR1000RR-R',
-    price: 28500,
+    name: 'Chevrolet Corvette E-Ray Convertible',
+    price: 112000,
+    category: 'Muscle Cars',
+    badge: 'new',
+    description: 'The first all-wheel-drive, hybrid Corvette. A 6.2L V8 and an electric front motor combine for 655 hp, launching the E-Ray to 60 mph in under 2.5 seconds.',
+    images: p('chevrolet-corvette-e-ray', '1.jpg', '2.jpg', '3.jpg', '4.jpg'),
+  },
+  {
+    name: 'Mitsubishi XRT Concept',
+    price: 48000,
+    category: 'Adventure',
+    badge: null,
+    description: 'A rugged off-road concept previewing Mitsubishi\'s next-generation SUV design language, with reinforced bodywork, raised suspension, and a bold, expedition-ready stance.',
+    images: p('mitsubishi-xrt-concept', '1.jpg', '2.jpg', '3.jpg', '4.jpg'),
+  },
+  {
+    name: 'Lamborghini Centenario',
+    price: 1900000,
+    category: 'Supercars',
+    badge: null,
+    description: 'Built to celebrate Ferruccio Lamborghini\'s 100th birthday, only 40 units exist. The Centenario packs a 770 hp naturally aspirated V12 in a razor-sharp carbon fibre body.',
+    images: p('lamborghini-centenario', '1.jpg', '2.jpg', '3.jpg', '4.jpg'),
+  },
+  {
+    name: 'Toyota GR GT Concept',
+    price: 220000,
+    category: 'Sports Cars',
+    badge: 'new',
+    description: 'Toyota\'s vision for a future GR halo supercar, built around a lightweight chassis and a high-output hybrid powertrain developed from Toyota\'s endurance racing programme.',
+    images: p('toyota-gr-gt-concept', '1.jpg', '2.jpg', '3.jpg', '4.jpg'),
+  },
+  {
+    name: 'Lamborghini Aventador',
+    price: 507000,
+    category: 'Supercars',
+    badge: null,
+    description: 'The naturally aspirated V12 flagship that defined a generation of Lamborghinis. 770 hp, scissor doors, and a carbon fibre monocoque built for pure drama.',
+    images: p('lamborghini-aventador', '1.jpg', '2.jpg', '3.jpg'),
+  },
+  {
+    name: 'Lamborghini Huracan STO',
+    price: 344778,
+    category: 'Supercars',
+    badge: null,
+    description: 'Born on the racetrack and built for the road. The Huracan STO packs 640 hp, rear-wheel drive, and a naturally aspirated V10 that screams to 8,000 rpm.',
+    images: p('lamborghini-huracan-sto', '1.avif', '2.avif', '3.avif'),
+  },
+  {
+    name: 'Audi Nuvolari',
+    price: 200000,
+    category: 'Sports Cars',
+    badge: 'new',
+    description: 'Audi\'s grand touring concept for the next decade, blending an electric performance powertrain with a sweeping, aerodynamic silhouette inspired by Audi\'s racing heritage.',
+    images: p('audi-nuvolari', '1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg'),
+  },
+  {
+    name: 'Dacia Manifesto Concept',
+    price: 35000,
+    category: 'Adventure',
+    badge: null,
+    description: 'A rugged, modular adventure vehicle concept from Dacia, built around durable materials, removable accessories, and a go-anywhere attitude at an accessible price.',
+    images: p('dacia-manifesto-concept', '1.jpg', '2.jpg', '3.jpg'),
+  },
+  {
+    name: 'Yamaha MT-09 Y-AMT',
+    price: 10800,
+    category: 'Sport Bikes',
+    badge: 'new',
+    description: 'The MT-09 gets Yamaha\'s new Y-AMT automated manual transmission, pairing the punchy 890cc CP3 triple with clutchless shifting for the best of both worlds.',
+    images: p('yamaha-mt09', '1.webp', '2.jpg'),
+  },
+  {
+    name: 'BMW S 1000 R',
+    price: 19560,
     category: 'Sport Bikes',
     badge: null,
-    description: 'Engineered with lessons from HRC MotoGP programme. 217 hp, Ohlins Smart EC 2.0 suspension, and Brembo Stylema brakes.',
-    images: [
-      cimg('photo-1692317785388-a7d076077d9d'), // motorcycle lit up in dark
-      cimg('photo-1615172282427-9a57ef2d142e'), // red/black sports bike
-      cimg('photo-1622189287746-9aebc28946e3'), // yellow/black motorcycle close-up
-    ],
+    description: 'A naked sportbike built around the S 1000 RR\'s 165 hp inline-four, with an upright riding position, full electronics suite, and razor-sharp handling.',
+    images: p('bmw-s1000r', '1.jpeg', '2.webp', '3.jpg', '4.jpg'),
+  },
+  {
+    name: 'Harley-Davidson Nightster',
+    price: 9999,
+    category: 'Cruisers',
+    badge: 'hot',
+    description: 'A lighter, more agile take on the classic Harley cruiser. The Nightster\'s liquid-cooled Revolution Max 975T engine delivers a sharp, modern ride without losing that V-twin soul.',
+    images: p('harley-davidson-nightster', '1.avif', '2.jpg', '3.avif', '4.jpg'),
   },
 ];
 

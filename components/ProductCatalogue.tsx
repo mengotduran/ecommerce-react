@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { HeartIcon, ShoppingBagIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import { HeartIcon as HeartSolid, CheckIcon } from '@heroicons/react/24/solid';
+import { HeartIcon } from '@heroicons/react/24/outline';
+import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid';
 import { useCart } from '../hooks/useCart';
 import { useLikedItems } from '../hooks/useLikedItems';
 
@@ -27,6 +27,12 @@ const BADGE: Record<string, { bg: string; color: string; label: string }> = {
   new:  { bg: '#dcfce7', color: '#166534', label: 'New' },
   hot:  { bg: '#fee2e2', color: '#991b1b', label: 'Hot' },
   sale: { bg: '#fef9c3', color: '#854d0e', label: 'Sale' },
+};
+
+const MONO: React.CSSProperties = {
+  fontFamily: 'var(--font-mono), ui-monospace, monospace',
+  textTransform: 'uppercase',
+  letterSpacing: '0.05em',
 };
 
 function ProductCard({ product, liked, onLike, onAddToCart }: {
@@ -93,26 +99,11 @@ function ProductCard({ product, liked, onLike, onAddToCart }: {
   return (
     <article
       style={{
-        background: 'var(--background)',
-        border: '1px solid var(--border-color)',
-        borderRadius: 16,
-        overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
-        transition: 'border-color 200ms ease, box-shadow 200ms ease',
       }}
-      onMouseEnter={e => {
-        if (!canHover) return;
-        setHovered(true);
-        (e.currentTarget as HTMLElement).style.borderColor = 'var(--foreground)';
-        (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 24px rgba(0,0,0,0.08)';
-      }}
-      onMouseLeave={e => {
-        if (!canHover) return;
-        setHovered(false);
-        (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-color)';
-        (e.currentTarget as HTMLElement).style.boxShadow = 'none';
-      }}
+      onMouseEnter={() => canHover && setHovered(true)}
+      onMouseLeave={() => canHover && setHovered(false)}
     >
       {/* Image carousel */}
       <Link
@@ -121,7 +112,7 @@ function ProductCard({ product, liked, onLike, onAddToCart }: {
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
-        <div style={{ position: 'relative', width: '100%', paddingBottom: '80%', background: 'var(--surface)', overflow: 'hidden' }}>
+        <div style={{ position: 'relative', width: '100%', paddingBottom: '80%', background: '#141414', overflow: 'hidden' }}>
           {images.map((src, i) => (
             <div key={src} style={{
               position: 'absolute', inset: 0,
@@ -140,10 +131,12 @@ function ProductCard({ product, liked, onLike, onAddToCart }: {
           {/* Badge */}
           {badge && (
             <span style={{
+              ...MONO,
               position: 'absolute', top: 12, left: 12, zIndex: 2,
-              background: badge.bg, color: badge.color,
-              fontSize: 10, fontWeight: 600, letterSpacing: '0.3px',
-              padding: '3px 8px', borderRadius: 20, textTransform: 'uppercase',
+              background: 'rgba(10,10,10,0.8)', color: 'rgba(255,255,255,0.85)',
+              border: '1px solid rgba(255,255,255,0.15)',
+              fontSize: 10, fontWeight: 600,
+              padding: '4px 9px',
             }}>
               {badge.label}
             </span>
@@ -154,13 +147,13 @@ function ProductCard({ product, liked, onLike, onAddToCart }: {
             <>
               <button onClick={prev} style={{
                 position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', zIndex: 2,
-                background: 'rgba(0,0,0,0.45)', border: 'none', borderRadius: '50%',
+                background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '50%',
                 width: 28, height: 28, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
                 color: '#fff', fontSize: 14, lineHeight: 1,
               }}>‹</button>
               <button onClick={next} style={{
                 position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', zIndex: 2,
-                background: 'rgba(0,0,0,0.45)', border: 'none', borderRadius: '50%',
+                background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '50%',
                 width: 28, height: 28, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
                 color: '#fff', fontSize: 14, lineHeight: 1,
               }}>›</button>
@@ -191,38 +184,38 @@ function ProductCard({ product, liked, onLike, onAddToCart }: {
       </Link>
 
       {/* Info */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '14px 16px 16px' }}>
-        <p style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.6px', textTransform: 'uppercase', color: 'var(--muted)', margin: '0 0 5px' }}>
-          {product.category}
-        </p>
+      <div className="catalogue-card__info" style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '16px 0 0' }}>
         <Link href={`/product/${product.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-          <h3 style={{ fontSize: 14, fontWeight: 500, lineHeight: 1.35, color: 'var(--foreground)', margin: '0 0 6px' }}>
+          <h3 className="catalogue-card__name" style={{
+            ...MONO, fontSize: 13, fontWeight: 700, lineHeight: 1.5, color: 'rgba(255,255,255,0.9)', margin: '0 0 8px',
+            display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden',
+          }}>
             {product.name}
           </h3>
         </Link>
-        <p style={{
-          fontSize: 12, color: 'var(--muted)', lineHeight: 1.55, margin: '0 0 auto',
+        <p className="catalogue-card__desc" style={{
+          fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.55, margin: '0 0 auto',
           display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden',
-          paddingBottom: 12,
+          paddingBottom: 14,
         }}>
           {product.description}
         </p>
 
         {/* Price + Actions */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 12, borderTop: '1px solid var(--border-color)' }}>
-          <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: '-0.3px', color: 'var(--accent)' }}>
+        <div className="catalogue-card__footer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 14, paddingBottom: 20 }}>
+          <span className="catalogue-card__price" style={{ fontSize: 14, fontWeight: 700, letterSpacing: '-0.2px', color: 'rgba(255,255,255,0.9)' }}>
             ${product.price}
           </span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <button
               type="button"
               aria-label={liked ? 'remove from wishlist' : 'add to wishlist'}
               onClick={onLike}
-              style={{ background: 'none', border: 'none', padding: 4, cursor: 'pointer', color: liked ? '#e11d48' : 'var(--muted)', display: 'flex', alignItems: 'center', transition: 'color 150ms' }}
+              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: liked ? 'var(--accent)' : 'rgba(255,255,255,0.45)', display: 'flex', alignItems: 'center', transition: 'color 150ms' }}
             >
               {liked
-                ? <HeartSolid style={{ width: 17, height: 17 }} />
-                : <HeartIcon style={{ width: 17, height: 17 }} />
+                ? <HeartSolid style={{ width: 16, height: 16 }} />
+                : <HeartIcon style={{ width: 16, height: 16 }} />
               }
             </button>
             <button
@@ -233,19 +226,17 @@ function ProductCard({ product, liked, onLike, onAddToCart }: {
                 setAdded(true);
                 setTimeout(() => setAdded(false), 2000);
               }}
+              className="catalogue-card__add"
               style={{
-                display: 'flex', alignItems: 'center', gap: 6,
-                background: added ? '#16a34a' : '#ffffff', color: '#000000',
-                border: `1px solid ${added ? '#16a34a' : '#e5e5e5'}`, borderRadius: 10,
-                padding: '7px 14px', fontSize: 12, fontWeight: 600,
-                cursor: 'pointer', letterSpacing: '-0.1px',
-                transition: 'background 200ms, border-color 200ms',
+                ...MONO,
+                background: 'none', border: 'none', padding: 0,
+                color: 'rgba(255,255,255,0.9)',
+                fontSize: 11, fontWeight: 600,
+                textDecoration: 'underline', textUnderlineOffset: '3px',
+                cursor: 'pointer',
               }}
             >
-              {added
-                ? <><CheckIcon style={{ width: 13, height: 13 }} /> Added!</>
-                : <><ShoppingBagIcon style={{ width: 13, height: 13 }} /> Add</>
-              }
+              {added ? 'Added' : 'Add to Cart'}
             </button>
           </div>
         </div>
@@ -254,7 +245,7 @@ function ProductCard({ product, liked, onLike, onAddToCart }: {
   );
 }
 
-const ROWS_PER_PAGE = 3;
+const ROWS_PER_PAGE = 2;
 const CARD_MIN = 280;  // keep in sync with the grid's minmax()
 const GRID_GAP = 16;
 
@@ -268,16 +259,22 @@ export default function ProductCatalogue() {
 
   // Paged rendering: show ROWS_PER_PAGE rows at a time, load more as the
   // sentinel below the grid scrolls into view
-  const [pages, setPages]             = useState(1);
+  const [pages, setPages]             = useState(() => {
+    if (typeof window === 'undefined') return 1;
+    const saved = Number(sessionStorage.getItem('catalogue-pages'));
+    return saved > 1 ? saved : 1;
+  });
+  const skipPageResetRef              = useRef(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [cols, setCols]               = useState(4);
   const gridRef     = useRef<HTMLDivElement>(null);
-  const sentinelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const calcCols = () => {
+      // mirrors the .catalogue-grid CSS: 2 columns below 640px, otherwise
+      // repeat(auto-fill, minmax(CARD_MIN, 1fr))
+      if (window.innerWidth <= 640) { setCols(2); return; }
       const w = gridRef.current?.clientWidth ?? 1200;
-      // mirrors repeat(auto-fill, minmax(CARD_MIN, 1fr))
       setCols(Math.max(1, Math.floor((w + GRID_GAP) / (CARD_MIN + GRID_GAP))));
     };
     calcCols();
@@ -299,6 +296,14 @@ export default function ProductCatalogue() {
     if (badge)         setActiveFilter(`badge:${badge}`);
     else if (category) setActiveFilter(category);
     else               setActiveFilter('All');
+
+    // Consume one-shot deep-link params (?category=/?badge=#catalogue) so the
+    // filter + jump only apply once — without this, navigating to a product
+    // and back lands on this same URL and re-applies the filter and re-jumps
+    // to #catalogue every time.
+    if (badge || category) {
+      window.history.replaceState(window.history.state, '', window.location.pathname);
+    }
   }, [searchParams]);
 
   const filtered = useMemo(() => {
@@ -310,42 +315,35 @@ export default function ProductCatalogue() {
     return products.filter((p) => p.category === activeFilter);
   }, [products, activeFilter]);
 
-  // Restart at the first page whenever the filter changes
-  useEffect(() => { setPages(1); }, [activeFilter]);
+  // Restart at the first page whenever the filter changes — but not on the
+  // initial mount, where `pages` may have been restored from sessionStorage
+  // to match the scroll position the user left off at
+  useEffect(() => {
+    if (skipPageResetRef.current) { skipPageResetRef.current = false; return; }
+    setPages(1);
+  }, [activeFilter]);
+
+  useEffect(() => {
+    sessionStorage.setItem('catalogue-pages', String(pages));
+  }, [pages]);
 
   const visible = filtered.slice(0, pages * cols * ROWS_PER_PAGE);
   const hasMore = visible.length < filtered.length;
 
-  useEffect(() => {
-    if (loading || !hasMore) return;
-    const el = sentinelRef.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(([entry]) => {
-      if (!entry.isIntersecting || loadingMore) return;
-      setLoadingMore(true);
-      // brief delay so the loader is perceptible instead of popping in
-      setTimeout(() => {
-        setPages((p) => p + 1);
-        setLoadingMore(false);
-      }, 350);
-    }, { rootMargin: '80px' });
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [loading, hasMore, loadingMore]);
-
 
   return (
-    <section style={{ padding: '48px 32px 72px', maxWidth: 1400, margin: '0 auto' }}>
+    <section style={{ background: '#0a0a0a', padding: '48px 32px 72px' }}>
+      <div style={{ maxWidth: 1400, margin: '0 auto' }}>
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 20 }}>
-        <h2 style={{ fontSize: 18, fontWeight: 500, letterSpacing: '-0.3px', color: 'var(--foreground)', margin: 0 }}>
+        <h2 style={{ ...MONO, fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.9)', margin: 0 }}>
           {activeFilter === 'All'         ? 'Browse all'
            : activeFilter === 'badge:new' ? 'New arrivals'
            : activeFilter === 'badge:sale'? 'Sale'
            : activeFilter}
         </h2>
-        <span style={{ fontSize: 12, color: 'var(--muted)' }}>{filtered.length} products</span>
+        <span style={{ ...MONO, fontSize: 11, color: 'rgba(255,255,255,0.45)' }}>{filtered.length} products</span>
       </div>
 
 
@@ -363,14 +361,7 @@ export default function ProductCatalogue() {
               key={value}
               type="button"
               onClick={() => setActiveFilter(value)}
-              style={{
-                padding: '5px 14px', borderRadius: 20, fontSize: 12, fontWeight: active ? 500 : 400,
-                border: '1px solid',
-                borderColor: active ? 'var(--foreground)' : 'var(--border-color)',
-                background: active ? 'var(--foreground)' : 'transparent',
-                color: active ? 'var(--background)' : 'var(--muted)',
-                cursor: 'pointer', transition: 'all 180ms ease',
-              }}
+              className={`catalogue-filter${active ? ' active' : ''}`}
             >
               {label}
             </button>
@@ -379,19 +370,18 @@ export default function ProductCatalogue() {
       </div>
 
       {/* Grid */}
-      <div ref={gridRef} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+      <div ref={gridRef} className="catalogue-grid">
         {loading
           ? Array(8).fill(0).map((_, i) => (
-              <div key={i} style={{ border: '1px solid var(--border-color)', borderRadius: 16, overflow: 'hidden' }}>
-                <div className="skeleton" style={{ width: '100%', paddingBottom: '80%' }} />
-                <div style={{ padding: '14px 16px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  <div className="skeleton" style={{ height: 10, width: '45%', borderRadius: 4 }} />
+              <div key={i}>
+                <div className="skeleton" style={{ width: '100%', paddingBottom: '80%', borderRadius: 0 }} />
+                <div style={{ padding: '16px 0 0', display: 'flex', flexDirection: 'column', gap: 10 }}>
                   <div className="skeleton" style={{ height: 14, width: '75%', borderRadius: 4 }} />
                   <div className="skeleton" style={{ height: 12, width: '90%', borderRadius: 4 }} />
                   <div className="skeleton" style={{ height: 12, width: '70%', borderRadius: 4 }} />
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 12, borderTop: '1px solid var(--border-color)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 14, paddingBottom: 20 }}>
                     <div className="skeleton" style={{ height: 16, width: '28%', borderRadius: 4 }} />
-                    <div className="skeleton" style={{ height: 32, width: '36%', borderRadius: 10 }} />
+                    <div className="skeleton" style={{ height: 16, width: '24%', borderRadius: 4 }} />
                   </div>
                 </div>
               </div>
@@ -408,13 +398,26 @@ export default function ProductCatalogue() {
         }
       </div>
 
-      {/* Pagination loader — loads the next rows when scrolled into view */}
+      {/* See more — loads the next set of rows, on both mobile and desktop */}
       {!loading && hasMore && (
-        <div ref={sentinelRef} style={{ display: 'flex', justifyContent: 'center', padding: '36px 0 8px' }}>
-          <span className="page-spinner" />
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '32px 0 8px' }}>
+          <button
+            type="button"
+            className="catalogue-seemore"
+            onClick={() => {
+              setLoadingMore(true);
+              setTimeout(() => {
+                setPages((p) => p + 1);
+                setLoadingMore(false);
+              }, 350);
+            }}
+          >
+            {loadingMore ? <span className="page-spinner" style={{ width: 14, height: 14 }} /> : 'See more'}
+          </button>
         </div>
       )}
 
+      </div>
     </section>
   );
 }
