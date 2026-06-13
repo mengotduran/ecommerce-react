@@ -3,9 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { EyeIcon, EyeSlashIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useAuthStore } from '../../store/authStore';
-import AuthBackdrop from '../../components/AuthBackdrop';
 
 export default function RegisterPage() {
   const router    = useRouter();
@@ -16,6 +15,8 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError]       = useState('');
   const [loading, setLoading]   = useState(false);
+
+  const close = () => router.push('/');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,40 +32,39 @@ export default function RegisterPage() {
     }
   };
 
-  const field = (label, type, value, setter, placeholder) => (
+  const field = (label, type, value, setter, placeholder, extra) => (
     <div>
-      <label style={{ fontSize: 12, fontWeight: 500, color: '#ffffff', display: 'block', marginBottom: 6 }}>
-        {label}
-      </label>
+      <label className="drawer-label">{label}</label>
       <input
         type={type}
         value={value}
         onChange={(e) => setter(e.target.value)}
         required
         placeholder={placeholder}
-        className="auth-input"
+        className="drawer-input"
+        {...extra}
       />
     </div>
   );
 
   return (
-    <div className="auth-page">
-      <AuthBackdrop />
-      <div style={{ width: '100%', maxWidth: 400, position: 'relative', zIndex: 1 }}>
+    <div className="page-drawer-backdrop" onClick={close}>
+      <div className="page-drawer" onClick={(e) => e.stopPropagation()}>
+        <button type="button" onClick={close} aria-label="close" className="page-drawer__close">
+          <XMarkIcon style={{ width: 18, height: 18 }} />
+        </button>
 
-        <Link href="/" style={{ textDecoration: 'none', display: 'block', textAlign: 'center', marginBottom: 32 }}>
-          <span style={{ fontFamily: 'var(--font-mono), ui-monospace, monospace', fontSize: 22, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '-0.4px', color: '#ffffff', textShadow: '0 2px 12px rgba(0, 0, 0, 0.6)' }}>
-            Veloc<span style={{ color: 'var(--accent)' }}>aris</span>
-          </span>
-        </Link>
+        <div className="page-drawer__content">
+          <Link href="/" style={{ textDecoration: 'none', display: 'block', marginBottom: 40 }}>
+            <span style={{ fontFamily: 'var(--font-mono), ui-monospace, monospace', fontSize: 18, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '-0.4px', color: 'var(--foreground)' }}>
+              Veloc<span style={{ color: 'var(--accent)' }}>aris</span>
+            </span>
+          </Link>
 
-        <div style={{ background: 'rgba(20, 20, 20, 0.15)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255, 255, 255, 0.12)', borderRadius: 20, padding: 'clamp(24px, 5vw, 36px)' }}>
-          <h1 style={{ fontSize: 20, fontWeight: 600, letterSpacing: '-0.4px', color: '#ffffff', margin: '0 0 6px' }}>
+          <p className="drawer-tag">Sign up</p>
+          <h1 style={{ fontSize: 22, fontWeight: 600, letterSpacing: '-0.4px', color: 'var(--foreground)', margin: '8px 0 32px' }}>
             Create account
           </h1>
-          <p style={{ fontSize: 13, color: 'rgba(255, 255, 255, 0.6)', margin: '0 0 28px' }}>
-            Join Velocaris today
-          </p>
 
           {error && (
             <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: 8, padding: '10px 14px', marginBottom: 20 }}>
@@ -72,13 +72,11 @@ export default function RegisterPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
             {field('Full name', 'text', name, setName, 'John Doe')}
-            {field('Email', 'email', email, setEmail, 'your@email.com')}
+            {field('Email address', 'email', email, setEmail, 'your@email.com')}
             <div>
-              <label style={{ fontSize: 12, fontWeight: 500, color: '#ffffff', display: 'block', marginBottom: 6 }}>
-                Password <span style={{ color: 'rgba(255, 255, 255, 0.6)', fontWeight: 400 }}>(min. 6 characters)</span>
-              </label>
+              <label className="drawer-label">Password (min. 6 characters)</label>
               <div style={{ position: 'relative' }}>
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -87,35 +85,30 @@ export default function RegisterPage() {
                   required
                   minLength={6}
                   placeholder="••••••••"
-                  className="auth-input"
-                  style={{ paddingRight: 42 }}
+                  className="drawer-input"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  style={{ position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', padding: 6, cursor: 'pointer', color: 'rgba(255, 255, 255, 0.6)', display: 'flex' }}
+                  style={{ position: 'absolute', right: 0, bottom: 6, background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--muted)', display: 'flex' }}
                 >
                   {showPassword ? <EyeSlashIcon width={18} height={18} /> : <EyeIcon width={18} height={18} />}
                 </button>
               </div>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              style={{ marginTop: 4, padding: '12px 0', borderRadius: 10, border: 'none', background: loading ? 'var(--muted)' : 'var(--accent)', color: '#000', fontSize: 14, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', transition: 'background 200ms' }}
-            >
+            <button type="submit" disabled={loading} className="drawer-submit">
               {loading ? (
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-                  <span className="btn-spinner" />
+                <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                  <span className="btn-spinner drawer-spinner" />
                   Creating account…
                 </span>
               ) : 'Create account'}
             </button>
           </form>
 
-          <p style={{ fontSize: 13, color: 'rgba(255, 255, 255, 0.6)', textAlign: 'center', margin: '24px 0 0' }}>
+          <p style={{ fontSize: 13, color: 'var(--muted)', textAlign: 'center', margin: '28px 0 0' }}>
             Already have an account?{' '}
             <Link href="/login" style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: 500 }}>
               Sign in
