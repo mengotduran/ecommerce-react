@@ -75,7 +75,7 @@ body {
 .auth-backdrop__overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.97) 0%, rgba(0, 0, 0, 0.93) 50%, rgba(0, 0, 0, 0.99) 100%);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.78) 50%, rgba(0, 0, 0, 0.9) 100%);
 }
 
 .auth-input {
