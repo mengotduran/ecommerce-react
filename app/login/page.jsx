@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { useAuthStore } from '../../store/authStore';
+import AuthBackdrop from '../../components/AuthBackdrop';
 
 export default function LoginPage() {
   const router   = useRouter();
@@ -31,20 +32,21 @@ export default function LoginPage() {
 
   return (
     <div className="auth-page">
-      <div style={{ width: '100%', maxWidth: 400 }}>
+      <AuthBackdrop />
+      <div style={{ width: '100%', maxWidth: 400, position: 'relative', zIndex: 1 }}>
 
         {/* Logo */}
         <Link href="/" style={{ textDecoration: 'none', display: 'block', textAlign: 'center', marginBottom: 32 }}>
-          <span style={{ fontFamily: 'var(--font-mono), ui-monospace, monospace', fontSize: 20, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '-0.4px', color: 'var(--foreground)' }}>
+          <span style={{ fontFamily: 'var(--font-mono), ui-monospace, monospace', fontSize: 22, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '-0.4px', color: '#ffffff', textShadow: '0 2px 12px rgba(0, 0, 0, 0.6)' }}>
             Veloc<span style={{ color: 'var(--accent)' }}>aris</span>
           </span>
         </Link>
 
-        <div style={{ background: 'var(--surface)', border: '1px solid var(--border-color)', borderRadius: 20, padding: 'clamp(24px, 5vw, 36px)' }}>
-          <h1 style={{ fontSize: 20, fontWeight: 600, letterSpacing: '-0.4px', color: 'var(--foreground)', margin: '0 0 6px' }}>
+        <div style={{ background: 'rgba(20, 20, 20, 0.15)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255, 255, 255, 0.12)', borderRadius: 20, padding: 'clamp(24px, 5vw, 36px)' }}>
+          <h1 style={{ fontSize: 20, fontWeight: 600, letterSpacing: '-0.4px', color: '#ffffff', margin: '0 0 6px' }}>
             Welcome back
           </h1>
-          <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 28px' }}>
+          <p style={{ fontSize: 13, color: 'rgba(255, 255, 255, 0.6)', margin: '0 0 28px' }}>
             Sign in to your account
           </p>
 
@@ -56,7 +58,7 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div>
-              <label style={{ fontSize: 12, fontWeight: 500, color: 'var(--foreground)', display: 'block', marginBottom: 6 }}>
+              <label style={{ fontSize: 12, fontWeight: 500, color: '#ffffff', display: 'block', marginBottom: 6 }}>
                 Email
               </label>
               <input
@@ -70,7 +72,7 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label style={{ fontSize: 12, fontWeight: 500, color: 'var(--foreground)', display: 'block', marginBottom: 6 }}>
+              <label style={{ fontSize: 12, fontWeight: 500, color: '#ffffff', display: 'block', marginBottom: 6 }}>
                 Password
               </label>
               <div style={{ position: 'relative' }}>
@@ -87,7 +89,7 @@ export default function LoginPage() {
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  style={{ position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', padding: 6, cursor: 'pointer', color: 'var(--muted)', display: 'flex' }}
+                  style={{ position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', padding: 6, cursor: 'pointer', color: 'rgba(255, 255, 255, 0.6)', display: 'flex' }}
                 >
                   {showPassword ? <EyeSlashIcon width={18} height={18} /> : <EyeIcon width={18} height={18} />}
                 </button>
@@ -108,7 +110,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p style={{ fontSize: 13, color: 'var(--muted)', textAlign: 'center', margin: '24px 0 0' }}>
+          <p style={{ fontSize: 13, color: 'rgba(255, 255, 255, 0.6)', textAlign: 'center', margin: '24px 0 0' }}>
             No account?{' '}
             <Link href="/register" style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: 500 }}>
               Create one

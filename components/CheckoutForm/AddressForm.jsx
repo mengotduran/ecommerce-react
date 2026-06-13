@@ -72,9 +72,9 @@ export const COUNTRIES = [
   { code: 'YE', name: 'Yemen' }, { code: 'ZM', name: 'Zambia' }, { code: 'ZW', name: 'Zimbabwe' },
 ];
 
-const SHIPPING_OPTIONS = [
-  { id: 'standard', label: 'Standard shipping (5–7 days) — $5.00' },
-  { id: 'express',  label: 'Express shipping (1–2 days) — $15.00' },
+export const SHIPPING_OPTIONS = [
+  { id: 'standard', label: 'Standard shipping (5–7 days) — $5.00', price: 5 },
+  { id: 'express',  label: 'Express shipping (1–2 days) — $15.00', price: 15 },
 ];
 
 const labelStyle = {
@@ -96,8 +96,8 @@ const AddressForm = ({ next, defaultValues = {} }) => {
 
   return (
     <>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 20 }}>
-        <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--foreground)', margin: 0 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 24 }}>
+        <p style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--foreground)', margin: 0 }}>
           Shipping address
         </p>
         <span style={{ fontSize: 11, color: 'var(--muted)' }}>
@@ -187,32 +187,36 @@ const AddressForm = ({ next, defaultValues = {} }) => {
               onChange={(e) => setShipping(e.target.value)}
             >
               {SHIPPING_OPTIONS.map((o) => (
-                <option key={o.id} value={o.id}>{o.label}</option>
+                <option key={o.id} value={o.id} style={{ background: 'var(--background)', color: 'var(--foreground)' }}>{o.label}</option>
               ))}
             </select>
           </div>
 
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, paddingTop: 16 }}>
+          <button
+            type="submit"
+            style={{
+              width: '100%', padding: '15px 0', borderRadius: 0, border: 'none',
+              background: 'var(--accent)', color: '#000',
+              fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '2px',
+              cursor: 'pointer',
+            }}
+          >
+            Proceed to payment
+          </button>
           <Link
             href="/cart"
-            style={{ fontSize: 13, color: 'var(--muted)', textDecoration: 'none', transition: 'color 150ms' }}
+            style={{
+              fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1.5px',
+              color: 'var(--muted)', textDecoration: 'none', textAlign: 'center', transition: 'color 150ms',
+            }}
             onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--foreground)')}
             onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted)')}
           >
             ← Back to cart
           </Link>
-          <button
-            type="submit"
-            style={{
-              padding: '11px 28px', borderRadius: 10, border: 'none',
-              background: 'var(--accent)', color: '#000',
-              fontSize: 13, fontWeight: 600, cursor: 'pointer',
-            }}
-          >
-            Continue to payment →
-          </button>
         </div>
       </form>
     </>

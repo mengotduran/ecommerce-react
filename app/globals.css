@@ -47,25 +47,52 @@ body {
 
 /* Auth pages (login / register) */
 .auth-page {
+  position: relative;
+  z-index: 1;
   min-height: 100svh;
-  background: var(--background);
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px 16px;
 }
 
+.auth-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+.auth-backdrop__slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.auth-backdrop__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.97) 0%, rgba(0, 0, 0, 0.93) 50%, rgba(0, 0, 0, 0.99) 100%);
+}
+
 .auth-input {
   width: 100%;
   box-sizing: border-box;
   padding: 10px 14px;
-  background: var(--background);
-  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 8px;
   font-size: 13px;
-  color: var(--foreground);
+  color: #ffffff;
   outline: none;
   transition: border-color 150ms;
+}
+
+.auth-input::placeholder {
+  color: rgba(255, 255, 255, 0.35);
 }
 
 .auth-input:focus {
@@ -644,24 +671,25 @@ body {
   border-radius: 8px;
 }
 
-/* Form inputs */
+/* Form inputs — underline style, used by the checkout flow */
 .form-input {
   width: 100%;
-  padding: 11px 14px;
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
-  background: var(--background);
+  padding: 10px 2px;
+  border: none;
+  border-bottom: 1px solid var(--border-color);
+  border-radius: 0;
+  background: transparent;
   color: var(--foreground);
-  font-size: 14px;
+  font-size: 13px;
+  font-family: var(--font-mono), ui-monospace, monospace;
   outline: none;
   box-sizing: border-box;
   transition: border-color 150ms;
   -webkit-appearance: none;
   appearance: none;
-  font-family: inherit;
 }
 .form-input:focus {
-  border-color: var(--foreground);
+  border-bottom-color: var(--foreground);
 }
 .form-input::placeholder {
   color: var(--muted);
@@ -722,6 +750,95 @@ body {
   }
 }
 
+/* Checkout — monospace, minimal "order form" aesthetic */
+.checkout-page {
+  font-family: var(--font-mono), ui-monospace, monospace;
+}
+
+.checkout-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 32px;
+}
+
+.checkout-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin: 0;
+  color: var(--foreground);
+}
+
+.checkout-steps {
+  display: flex;
+  gap: 24px;
+}
+
+.checkout-step {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  padding-bottom: 4px;
+  border-bottom: 1.5px solid transparent;
+  color: var(--muted);
+  white-space: nowrap;
+  transition: color 150ms, border-color 150ms;
+}
+
+.checkout-step.active,
+.checkout-step.done {
+  color: var(--foreground);
+}
+
+.checkout-step.active {
+  border-bottom-color: var(--foreground);
+}
+
+/* Order summary line items */
+.checkout-summary-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.checkout-summary-item__image {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  background: var(--surface);
+  overflow: hidden;
+  position: relative;
+}
+
+.checkout-summary-item__image img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.checkout-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+}
+
+.checkout-summary-row .value {
+  color: var(--foreground);
+}
+
 /* Checkout responsive layout */
 .checkout-layout {
   display: flex;
@@ -735,10 +852,9 @@ body {
 }
 
 .checkout-summary-col {
-  width: 300px;
+  width: 320px;
   flex-shrink: 0;
   border: 1px solid var(--border-color);
-  border-radius: 16px;
   padding: 24px;
   position: sticky;
   top: 72px;
@@ -758,6 +874,10 @@ body {
 @media (max-width: 768px) {
   .checkout-layout {
     flex-direction: column-reverse; /* summary appears above form on mobile */
+    align-items: stretch;
+  }
+  .checkout-form-col {
+    width: 100%;
   }
   .checkout-summary-col {
     width: 100%;
@@ -769,11 +889,13 @@ body {
   .address-grid .span-2 {
     grid-column: span 1;
   }
-}
-
-@media (max-width: 480px) {
-  .checkout-form-col > div[style] {
-    padding: 20px 16px;
+  .checkout-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .checkout-steps {
+    gap: 16px;
   }
 }
 

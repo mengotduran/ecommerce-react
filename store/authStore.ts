@@ -73,6 +73,20 @@ export const useAuthStore = create<AuthState>()(
         useCartStore.getState().init(null);
       },
     }),
-    { name: 'auth' }
+    {
+      name: 'auth',
+      // Keep the auth cookies (read by middleware.ts) in sync with the
+      // persisted store (read by the UI). Without this the two can drift —
+      // e.g. localStorage gets cleared during dev but the cookie lingers —
+      // and the middleware then bounces you off /login back to home while
+      // the navbar still shows "Sign in".
+      onRehydrateStorage: () => (state) => {
+        if (state?.token && state.user) {
+          setCookies(state.token, state.user.role);
+        } else {
+          clearCookies();
+        }
+      },
+    }
   )
 );

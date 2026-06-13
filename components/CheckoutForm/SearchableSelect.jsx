@@ -77,7 +77,7 @@ const SearchableSelect = ({ value, onChange, options, label, required }) => {
           style={{
             position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, zIndex: 200,
             background: 'var(--background)', border: '1px solid var(--border-color)',
-            borderRadius: 10, overflow: 'hidden',
+            borderRadius: 0, overflow: 'hidden',
             boxShadow: '0 8px 32px rgba(0,0,0,0.14)',
           }}
         >
