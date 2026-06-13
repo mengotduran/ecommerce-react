@@ -47,18 +47,20 @@ body {
 
 /* Drawer panels (cart / auth) — overlaid on top of whatever page is
    currently showing, so the page underneath stays put (no navigation,
-   no scroll jump). The backdrop stays transparent — it only exists to
-   catch outside clicks — and both pieces are always mounted, sliding
-   via transform so open/close are symmetric and smooth. */
+   no scroll jump). The backdrop dims the page behind it and catches
+   outside clicks; both pieces are always mounted, sliding/fading via
+   transform/background so open/close are symmetric and smooth. */
 .page-drawer-backdrop {
   position: fixed;
   inset: 0;
-  background: transparent;
+  background: rgba(0, 0, 0, 0);
   z-index: 1000;
   pointer-events: none;
+  transition: background 360ms cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 .page-drawer-backdrop.open {
+  background: rgba(0, 0, 0, 0.4);
   pointer-events: auto;
 }
 

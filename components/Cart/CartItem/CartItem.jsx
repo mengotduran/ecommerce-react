@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { TrashIcon, BookmarkIcon } from '@heroicons/react/24/outline';
-import { BookmarkIcon as BookmarkSolid } from '@heroicons/react/24/solid';
+import { TrashIcon, HeartIcon } from '@heroicons/react/24/outline';
+import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid';
 import { useLikedItems } from '../../../hooks/useLikedItems';
 
 const CartItem = ({ item, onUpdateCartQty, onRemoveFromCart }) => {
@@ -38,9 +38,9 @@ const CartItem = ({ item, onUpdateCartQty, onRemoveFromCart }) => {
           <button
             type="button"
             onClick={() => toggleLike(item.product_id)}
-            aria-label={liked ? 'Remove from saved items' : 'Save for later'}
+            aria-label={liked ? 'Remove from liked items' : 'Add to liked items'}
           >
-            {liked ? <BookmarkSolid /> : <BookmarkIcon />}
+            {liked ? <HeartSolid /> : <HeartIcon />}
           </button>
           <button type="button" onClick={() => onRemoveFromCart(item.product_id)} aria-label="Remove">
             <TrashIcon />
