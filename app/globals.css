@@ -946,6 +946,24 @@ body {
   height: 17px;
 }
 
+.cart-drawer__add-btn {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 9px 18px;
+  background: var(--foreground);
+  color: var(--background);
+  border: none;
+  cursor: pointer;
+  transition: opacity 150ms;
+}
+
+.cart-drawer__add-btn:hover {
+  opacity: 0.85;
+}
+
 .cart-drawer__guest-box {
   border: 1px solid var(--border-color);
   padding: 24px;

@@ -23,6 +23,7 @@ const Navbar = () => {
   const logout = useAuthStore((s) => s.logout);
   const openCart = useUIStore((s) => s.openCart);
   const openAuth = useUIStore((s) => s.openAuth);
+  const openLiked = useUIStore((s) => s.openLiked);
   const [showCats, setShowCats]   = useState(false);
   const [showUser, setShowUser]   = useState(false);
   const [pendingOrders, setPendingOrders] = useState(0);
@@ -238,10 +239,11 @@ const Navbar = () => {
           </Link>
         )}
 
-        <Link
-          href="/liked"
+        <button
+          type="button"
+          onClick={openLiked}
           aria-label="wishlist"
-          style={{ position: 'relative', color: mutedColor, display: 'flex', alignItems: 'center', transition: 'color 150ms' }}
+          style={{ position: 'relative', color: mutedColor, display: 'flex', alignItems: 'center', background: 'none', border: 'none', padding: 0, cursor: 'pointer', transition: 'color 150ms' }}
           onMouseEnter={(e) => (e.currentTarget.style.color = hoverColor)}
           onMouseLeave={(e) => (e.currentTarget.style.color = mutedColor)}
         >
@@ -258,7 +260,7 @@ const Navbar = () => {
               {likedItems.length}
             </span>
           )}
-        </Link>
+        </button>
 
         {pathname !== '/checkout' && (
           <button
