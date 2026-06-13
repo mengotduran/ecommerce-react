@@ -6,6 +6,8 @@ import SearchOverlay from '../components/SearchOverlay';
 import Footer from '../components/Footer';
 import StoreHydrator from '../components/StoreHydrator';
 import ScrollManager from '../components/ScrollManager';
+import CartDrawer from '../components/Cart/CartDrawer';
+import AuthDrawer from '../components/Auth/AuthDrawer';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const mono  = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' });
@@ -38,6 +40,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SearchOverlay />
         {children}
         <Footer />
+        <CartDrawer />
+        <AuthDrawer />
       </body>
     </html>
   );

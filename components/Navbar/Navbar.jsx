@@ -8,6 +8,7 @@ import { HeartIcon } from '@heroicons/react/24/outline';
 import { useCart } from '../../hooks/useCart';
 import { useLikedItems } from '../../hooks/useLikedItems';
 import { useAuthStore } from '../../store/authStore';
+import { useUIStore } from '../../store/uiStore';
 
 const categories = ['Supercars', 'Sports Cars', 'Muscle Cars', 'Cruisers', 'Sport Bikes', 'Adventure'];
 
@@ -20,6 +21,8 @@ const Navbar = () => {
   const user   = useAuthStore((s) => s.user);
   const token  = useAuthStore((s) => s.token);
   const logout = useAuthStore((s) => s.logout);
+  const openCart = useUIStore((s) => s.openCart);
+  const openAuth = useUIStore((s) => s.openAuth);
   const [showCats, setShowCats]   = useState(false);
   const [showUser, setShowUser]   = useState(false);
   const [pendingOrders, setPendingOrders] = useState(0);
@@ -81,9 +84,6 @@ const Navbar = () => {
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
-
-  // Auth pages render their own logo; no navbar (Footer hides on these too)
-  if (pathname === '/login' || pathname === '/register') return null;
 
   // Homepage: no solid bar — icons float transparently over HeroSlider,
   // which already renders the centered VELOCARIS wordmark as the logo.
@@ -261,19 +261,20 @@ const Navbar = () => {
         </Link>
 
         {pathname !== '/checkout' && (
-          <Link
-            href="/cart"
+          <button
+            type="button"
+            onClick={openCart}
             className={isHome ? 'flex items-center gap-1.5 px-[14px] py-[6px] text-[13px] font-medium' : 'flex items-center gap-1.5 rounded-lg border border-border px-[14px] py-[6px] text-[13px] font-medium'}
             style={isHome
-              ? { background: 'transparent', color: mutedColor, transition: 'color 150ms' }
-              : { background: '#ffffff', color: '#000000' }
+              ? { background: 'transparent', color: mutedColor, transition: 'color 150ms', border: 'none', cursor: 'pointer' }
+              : { background: '#ffffff', color: '#000000', cursor: 'pointer' }
             }
             onMouseEnter={isHome ? (e) => (e.currentTarget.style.color = hoverColor) : undefined}
             onMouseLeave={isHome ? (e) => (e.currentTarget.style.color = mutedColor) : undefined}
           >
             <ShoppingCartIcon className="h-[16px] w-[16px]" />
             Cart ({cart.total_items})
-          </Link>
+          </button>
         )}
 
         {/* User menu */}
@@ -340,17 +341,18 @@ const Navbar = () => {
             )}
           </div>
         ) : (
-          <Link
-            href="/login"
+          <button
+            type="button"
+            onClick={() => openAuth('login')}
             style={isHome
-              ? { padding: '6px 14px', fontSize: 13, fontWeight: 500, background: 'transparent', color: 'var(--accent)', textDecoration: 'none', transition: 'opacity 150ms' }
-              : { padding: '6px 14px', borderRadius: 8, fontSize: 13, fontWeight: 500, background: 'var(--accent)', color: '#000', textDecoration: 'none', transition: 'opacity 150ms' }
+              ? { padding: '6px 14px', fontSize: 13, fontWeight: 500, background: 'transparent', border: 'none', color: 'var(--accent)', cursor: 'pointer', transition: 'opacity 150ms' }
+              : { padding: '6px 14px', borderRadius: 8, fontSize: 13, fontWeight: 500, background: 'var(--accent)', border: 'none', color: '#000', cursor: 'pointer', transition: 'opacity 150ms' }
             }
             onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.85')}
             onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
           >
             Sign in
-          </Link>
+          </button>
         )}
       </div>
     </header>

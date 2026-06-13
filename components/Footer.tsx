@@ -2,9 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-
-const HIDDEN_ROUTES = ['/login', '/register'];
 
 const SHOP = [
   { label: 'New arrivals',  href: '/?badge=new#catalogue' },
@@ -56,11 +53,8 @@ const SOCIAL = [
 ];
 
 export default function Footer() {
-  const pathname = usePathname();
   const [email, setEmail]     = useState('');
   const [submitted, setSubmitted] = useState(false);
-
-  if (HIDDEN_ROUTES.includes(pathname)) return null;
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();

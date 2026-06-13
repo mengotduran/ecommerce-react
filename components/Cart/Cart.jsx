@@ -9,7 +9,7 @@ import CartItem from './CartItem/CartItem';
 // shell — close button and title — lives in app/cart/page.jsx so it stays
 // interactive immediately, instead of being part of this client-only,
 // dynamically-loaded chunk.
-const Cart = ({ cart, handleRemoveFromCart, handleUpdateCartQty, handleEmptyCart }) => {
+const Cart = ({ cart, handleRemoveFromCart, handleUpdateCartQty, handleEmptyCart, onNavigate }) => {
   if (!cart.line_items) return null;
 
   // Empty state
@@ -20,6 +20,7 @@ const Cart = ({ cart, handleRemoveFromCart, handleUpdateCartQty, handleEmptyCart
         <p style={{ fontSize: 15, margin: 0 }}>Your cart is empty</p>
         <Link
           href="/"
+          onClick={onNavigate}
           style={{
             marginTop: 8, padding: '10px 24px', borderRadius: 10,
             background: 'var(--accent)', color: '#000',
@@ -56,6 +57,7 @@ const Cart = ({ cart, handleRemoveFromCart, handleUpdateCartQty, handleEmptyCart
 
         <Link
           href="/checkout"
+          onClick={onNavigate}
           style={{
             display: 'block', textAlign: 'center', width: '100%',
             padding: '13px 0', borderRadius: 10, boxSizing: 'border-box',
