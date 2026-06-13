@@ -54,9 +54,14 @@ export default function CartDrawer() {
         </button>
 
         <div className="page-drawer__content">
-          <h1 style={{ fontSize: 18, fontWeight: 500, letterSpacing: '-0.3px', color: 'var(--foreground)', margin: '0 0 24px' }}>
-            Shopping cart
-          </h1>
+          <div className="cart-drawer__header">
+            <h1 className="cart-drawer__title">Bag</h1>
+          </div>
+          {cart.total_items > 0 && (
+            <p className="cart-drawer__count">
+              {cart.total_items} {cart.total_items === 1 ? 'item' : 'items'}
+            </p>
+          )}
 
           <CartBody
             cart={cart}

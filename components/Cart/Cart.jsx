@@ -4,12 +4,17 @@ import React from 'react';
 import Link from 'next/link';
 import { ShoppingBagIcon } from '@heroicons/react/24/outline';
 import CartItem from './CartItem/CartItem';
+import { useAuthStore } from '../../store/authStore';
+import { useUIStore } from '../../store/uiStore';
 
 // Renders only the cart *body* (empty state or items + summary). The page
 // shell — close button and title — lives in app/cart/page.jsx so it stays
 // interactive immediately, instead of being part of this client-only,
 // dynamically-loaded chunk.
 const Cart = ({ cart, handleRemoveFromCart, handleUpdateCartQty, handleEmptyCart, onNavigate }) => {
+  const user = useAuthStore((s) => s.user);
+  const openAuth = useUIStore((s) => s.openAuth);
+
   if (!cart.line_items) return null;
 
   // Empty state
@@ -46,42 +51,30 @@ const Cart = ({ cart, handleRemoveFromCart, handleUpdateCartQty, handleEmptyCart
         ))}
       </div>
 
+      {!user && (
+        <div className="cart-drawer__guest-box">
+          <p className="cart-drawer__guest-title">Continue as a registered user</p>
+          <p className="cart-drawer__guest-text">
+            Log in or create an account to enjoy a personalized shopping experience and track your orders.
+          </p>
+          <button type="button" className="cart-drawer__guest-link" onClick={() => openAuth('login')}>
+            Log in or register
+          </button>
+        </div>
+      )}
+
       {/* Summary */}
       <div className="cart-drawer__footer">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 20 }}>
-          <span style={{ fontSize: 13, color: 'var(--muted)' }}>Subtotal</span>
-          <span style={{ fontSize: 20, fontWeight: 700, letterSpacing: '-0.5px', color: 'var(--accent)' }}>
-            {cart.subtotal.formatted_with_symbol}
-          </span>
+        <div className="cart-drawer__subtotal">
+          <span>Subtotal</span>
+          <span>{cart.subtotal.formatted_with_symbol}</span>
         </div>
 
-        <Link
-          href="/checkout"
-          onClick={onNavigate}
-          style={{
-            display: 'block', textAlign: 'center', width: '100%',
-            padding: '13px 0', borderRadius: 10, boxSizing: 'border-box',
-            background: 'var(--accent)', color: '#000',
-            fontSize: 13, fontWeight: 700, textDecoration: 'none',
-            letterSpacing: '-0.1px',
-          }}
-        >
-          Checkout →
+        <Link href="/checkout" onClick={onNavigate} className="cart-drawer__checkout">
+          Checkout
         </Link>
 
-        <button
-          type="button"
-          onClick={handleEmptyCart}
-          style={{
-            display: 'block', width: '100%', marginTop: 10,
-            padding: '10px 0', borderRadius: 10,
-            background: 'none', border: '1px solid var(--border-color)',
-            color: 'var(--muted)', fontSize: 13, cursor: 'pointer',
-            transition: 'border-color 150ms, color 150ms',
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--foreground)'; e.currentTarget.style.color = 'var(--foreground)'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.color = 'var(--muted)'; }}
-        >
+        <button type="button" onClick={handleEmptyCart} className="cart-drawer__empty-link">
           Empty cart
         </button>
       </div>
