@@ -106,7 +106,9 @@ export class ApprovalsService {
         }});
         break;
       case 'DELETE_PRODUCT':
-        await this.prisma.product.delete({ where: { id: payload.productId } });
+        // Soft delete (see ProductsService.remove) so the product stays in
+        // the DB for existing orders instead of hitting the OrderItem FK.
+        await this.prisma.product.update({ where: { id: payload.productId }, data: { deletedAt: new Date() } });
         break;
       case 'UPDATE_PRODUCT_PRICE':
         await this.prisma.product.update({ where: { id: payload.productId }, data: { price: payload.newPrice } });
