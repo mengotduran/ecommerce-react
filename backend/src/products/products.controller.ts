@@ -26,6 +26,11 @@ export class ProductsController {
 
   @Get(':id') findOne(@Param('id') id: string) { return this.productsService.findById(id); }
 
+  // Declared before `@Patch(':id')` so "restore-all" isn't matched as an id.
+  @Patch('restore-all')
+  @UseGuards(JwtAuthGuard, RolesGuard) @Roles('ADMIN')
+  restoreAll() { return this.productsService.restoreAll(); }
+
   @Patch(':id/restore')
   @UseGuards(JwtAuthGuard, RolesGuard) @Roles('ADMIN')
   restore(@Param('id') id: string) { return this.productsService.restore(id); }

@@ -27,6 +27,11 @@ export class ProductsService {
     return this.prisma.product.update({ where: { id }, data: { deletedAt: null } });
   }
 
+  // Restore every soft-deleted product in one shot.
+  restoreAll() {
+    return this.prisma.product.updateMany({ where: { deletedAt: { not: null } }, data: { deletedAt: null } });
+  }
+
   create(dto: CreateProductDto) {
     return this.prisma.product.create({ data: { ...dto, price: dto.price } });
   }

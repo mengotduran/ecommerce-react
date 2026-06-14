@@ -109,6 +109,12 @@ export default function AdminProducts() {
     load();
   };
 
+  const restoreAll = async () => {
+    await fetch(`${API}/products/restore-all`, { method: 'PATCH', headers });
+    showToast('All deleted products restored');
+    load();
+  };
+
   const submitRequest = async () => {
     if (!noteModal) return;
     const data = noteModal.type === 'delete'
@@ -237,9 +243,17 @@ export default function AdminProducts() {
       {/* Deleted products — soft-deleted items, restorable */}
       {!loading && (
         <div style={{ marginTop: 32 }}>
-          <h2 style={{ fontSize: 14, fontWeight: 600, color: 'var(--foreground)', margin: '0 0 4px' }}>
-            Deleted products{deleted.length > 0 ? ` (${deleted.length})` : ''}
-          </h2>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, margin: '0 0 4px' }}>
+            <h2 style={{ fontSize: 14, fontWeight: 600, color: 'var(--foreground)', margin: 0 }}>
+              Deleted products{deleted.length > 0 ? ` (${deleted.length})` : ''}
+            </h2>
+            {deleted.length > 1 && (
+              <button onClick={restoreAll}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '6px 14px', background: 'var(--accent)', color: '#000', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                <ArrowUturnLeftIcon style={{ width: 13, height: 13 }} /> Restore all
+              </button>
+            )}
+          </div>
           <p style={{ fontSize: 12, color: 'var(--muted)', margin: '0 0 14px' }}>
             Hidden from the store but kept for order history. Restore to make them live again.
           </p>
