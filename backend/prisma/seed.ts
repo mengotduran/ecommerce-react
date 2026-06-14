@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 // Local images live in /public/products/<slug>/<file>
 const p = (slug: string, ...files: string[]) => files.map((f) => `/products/${slug}/${f}`);
 
-const featured = [
+export const featured = [
   {
     name: 'Bugatti Brouillard',
     price: 20000000,
@@ -73,7 +73,7 @@ const featured = [
   },
 ];
 
-const catalogue = [
+export const catalogue = [
   {
     name: 'Lamborghini Reventon Roadster',
     price: 2000000,
@@ -213,11 +213,15 @@ async function main() {
   console.log(`Seeded ${featured.length + catalogue.length} products.`);
 }
 
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+// Only run the (destructive) reseed when this file is executed directly,
+// so other scripts can import `featured`/`catalogue` without wiping data.
+if (require.main === module) {
+  main()
+    .catch((e) => {
+      console.error(e);
+      process.exit(1);
+    })
+    .finally(async () => {
+      await prisma.$disconnect();
+    });
+}
