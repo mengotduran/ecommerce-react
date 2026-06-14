@@ -31,6 +31,11 @@ export class ProductsController {
   @UseGuards(JwtAuthGuard, RolesGuard) @Roles('ADMIN')
   restoreAll() { return this.productsService.restoreAll(); }
 
+  // Re-create seed products that were hard-deleted (gone from the DB).
+  @Post('restore-seed')
+  @UseGuards(JwtAuthGuard, RolesGuard) @Roles('SUPERADMIN')
+  restoreSeed() { return this.productsService.restoreSeed(); }
+
   @Patch(':id/restore')
   @UseGuards(JwtAuthGuard, RolesGuard) @Roles('ADMIN')
   restore(@Param('id') id: string) { return this.productsService.restore(id); }

@@ -115,6 +115,15 @@ export default function AdminProducts() {
     load();
   };
 
+  // Re-create catalog products that were permanently deleted (gone from the
+  // DB, so not in the "Deleted products" list). Skips ones that still exist.
+  const restoreSeed = async () => {
+    const res = await fetch(`${API}/products/restore-seed`, { method: 'POST', headers })
+      .then((r) => (r.ok ? r.json() : null)).catch(() => null);
+    showToast(res ? `Re-added ${res.created} missing product(s)` : 'Could not re-add products');
+    load();
+  };
+
   const submitRequest = async () => {
     if (!noteModal) return;
     const data = noteModal.type === 'delete'
@@ -136,9 +145,19 @@ export default function AdminProducts() {
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
         <h1 style={{ fontSize: 20, fontWeight: 600, letterSpacing: '-0.4px', color: 'var(--foreground)', margin: 0 }}>Products</h1>
-        <button onClick={openCreate} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: 'var(--accent)', color: '#000', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
-          <PlusIcon style={{ width: 14, height: 14 }} /> Add product
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          {isSuperAdmin && (
+            <button onClick={restoreSeed} title="Re-create any default catalog products that were permanently deleted"
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', background: 'none', color: 'var(--muted)', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 150ms' }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.color = 'var(--muted)'; }}>
+              <ArrowUturnLeftIcon style={{ width: 14, height: 14 }} /> Re-add missing
+            </button>
+          )}
+          <button onClick={openCreate} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: 'var(--accent)', color: '#000', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+            <PlusIcon style={{ width: 14, height: 14 }} /> Add product
+          </button>
+        </div>
       </div>
 
       {loading ? <p style={{ color: 'var(--muted)', fontSize: 14 }}>Loading…</p> : (
