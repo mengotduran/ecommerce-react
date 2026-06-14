@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { EyeIcon, EyeSlashIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useAuthStore } from '../../store/authStore';
 import { useUIStore } from '../../store/uiStore';
+import { useCloseOnNavigate } from '../../hooks/useCloseOnNavigate';
 
 export default function AuthDrawer() {
   const open       = useUIStore((s) => s.authOpen);
@@ -22,6 +23,10 @@ export default function AuthDrawer() {
   const [loading, setLoading]   = useState(false);
 
   const isLogin = mode === 'login';
+
+  // Close automatically once a Link inside the drawer navigates to a
+  // different route (rather than synchronously on click).
+  useCloseOnNavigate(open, closeAuth);
 
   // Lock page scroll while the drawer is open, and let Escape close it.
   useEffect(() => {
@@ -72,7 +77,7 @@ export default function AuthDrawer() {
         </button>
 
         <div className="page-drawer__content">
-          <Link href="/" onClick={closeAuth} style={{ textDecoration: 'none', display: 'block', marginBottom: 40 }}>
+          <Link href="/" style={{ textDecoration: 'none', display: 'block', marginBottom: 40 }}>
             <span style={{ fontFamily: 'var(--font-mono), ui-monospace, monospace', fontSize: 18, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '-0.4px', color: 'var(--foreground)' }}>
               Veloc<span style={{ color: 'var(--accent)' }}>aris</span>
             </span>

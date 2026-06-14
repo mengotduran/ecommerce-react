@@ -29,7 +29,11 @@ export default function AdminUsers() {
   const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
 
   const load = () => {
-    fetch(`${API}/users`, { headers }).then((r) => r.json()).then(setUsers).finally(() => setLoading(false));
+    fetch(`${API}/users`, { headers })
+      .then((r) => r.json())
+      .then((d) => setUsers(Array.isArray(d) ? d : []))
+      .catch(() => setUsers([]))
+      .finally(() => setLoading(false));
   };
   useEffect(() => { load(); }, []);
 

@@ -22,7 +22,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 // Only the liked-items *body* is loaded dynamically (client-only). The
 // close button and title live in LikedDrawer so they're always present
 // and clickable, even while this chunk is still loading.
-const LikedBody = ({ onNavigate }: { onNavigate: () => void }) => {
+const LikedBody = () => {
   const { likedItems } = useLikedItems();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,7 +48,6 @@ const LikedBody = ({ onNavigate }: { onNavigate: () => void }) => {
         <p style={{ fontSize: 15, margin: 0 }}>No liked items yet</p>
         <Link
           href="/"
-          onClick={onNavigate}
           style={{
             marginTop: 8, padding: '10px 24px', borderRadius: 10,
             background: 'var(--accent)', color: '#000',

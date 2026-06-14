@@ -303,6 +303,17 @@ export default function ProductCatalogue() {
     // to #catalogue every time.
     if (badge || category) {
       window.history.replaceState(window.history.state, '', window.location.pathname);
+
+      // Own the scroll-to-catalogue ourselves instead of relying on the
+      // browser's native #catalogue hash scroll. The native scroll is
+      // suppressed entirely when the issuing UI has locked page scroll
+      // (e.g. the search overlay sets overflow:hidden on <html>/<body>),
+      // which leaves the page pinned at the top. A macrotask runs after
+      // that overlay's scroll-lock has been released, so the jump lands.
+      const timer = window.setTimeout(() => {
+        document.getElementById('catalogue')?.scrollIntoView({ block: 'start' });
+      }, 0);
+      return () => window.clearTimeout(timer);
     }
   }, [searchParams]);
 

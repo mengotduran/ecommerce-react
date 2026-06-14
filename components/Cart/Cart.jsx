@@ -11,7 +11,7 @@ import { useUIStore } from '../../store/uiStore';
 // shell — close button and title — lives in app/cart/page.jsx so it stays
 // interactive immediately, instead of being part of this client-only,
 // dynamically-loaded chunk.
-const Cart = ({ cart, handleRemoveFromCart, handleUpdateCartQty, handleEmptyCart, onNavigate }) => {
+const Cart = ({ cart, handleRemoveFromCart, handleUpdateCartQty, handleEmptyCart }) => {
   const user = useAuthStore((s) => s.user);
   const openAuth = useUIStore((s) => s.openAuth);
 
@@ -25,7 +25,6 @@ const Cart = ({ cart, handleRemoveFromCart, handleUpdateCartQty, handleEmptyCart
         <p style={{ fontSize: 15, margin: 0 }}>Your cart is empty</p>
         <Link
           href="/"
-          onClick={onNavigate}
           style={{
             marginTop: 8, padding: '10px 24px', borderRadius: 10,
             background: 'var(--accent)', color: '#000',
@@ -70,7 +69,7 @@ const Cart = ({ cart, handleRemoveFromCart, handleUpdateCartQty, handleEmptyCart
           <span>{cart.subtotal.formatted_with_symbol}</span>
         </div>
 
-        <Link href="/checkout" onClick={onNavigate} className="cart-drawer__checkout">
+        <Link href="/checkout" className="cart-drawer__checkout">
           Checkout
         </Link>
 

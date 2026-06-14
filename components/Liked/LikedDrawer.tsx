@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useUIStore } from '../../store/uiStore';
 import { useLikedItems } from '../../hooks/useLikedItems';
+import { useCloseOnNavigate } from '../../hooks/useCloseOnNavigate';
 
 // Only the liked-items *body* is loaded dynamically (client-only, to avoid
 // a localStorage hydration mismatch). The close button and title are
@@ -31,6 +32,10 @@ export default function LikedDrawer() {
   const open = useUIStore((s) => s.likedOpen);
   const closeLiked = useUIStore((s) => s.closeLiked);
   const { likedItems } = useLikedItems();
+
+  // Close automatically once a Link inside the drawer navigates to a
+  // different route (rather than synchronously on click).
+  useCloseOnNavigate(open, closeLiked);
 
   // Lock page scroll while the drawer is open, and let Escape close it.
   useEffect(() => {
@@ -66,7 +71,7 @@ export default function LikedDrawer() {
             </p>
           )}
 
-          <LikedBody onNavigate={closeLiked} />
+          <LikedBody />
         </div>
       </div>
     </>

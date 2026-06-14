@@ -107,6 +107,7 @@ export default function Footer() {
                 <li key={label}>
                   <Link
                     href={href}
+                    scroll={false}
                     style={{ fontSize: 13, color: 'var(--muted)', textDecoration: 'none', transition: 'color 150ms' }}
                     onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--accent-dark)')}
                     onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted)')}

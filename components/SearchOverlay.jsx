@@ -2,9 +2,12 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon } from '@heroicons/react/24/outline';
+import { useCloseOnNavigate } from '../hooks/useCloseOnNavigate';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+const categories = ['Supercars', 'Sports Cars', 'Muscle Cars', 'Cruisers', 'Sport Bikes', 'Adventure'];
 
 export default function SearchOverlay() {
   const [open, setOpen]         = useState(false);
@@ -44,13 +47,15 @@ export default function SearchOverlay() {
     });
   }, [open, ready]);
 
-  // Auto-focus input when opened
+  // Auto-focus input when opened, lock page scroll while open
   useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
       setTimeout(() => inputRef.current?.focus(), 60);
     } else {
       document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
     }
   }, [open]);
 
@@ -58,6 +63,10 @@ export default function SearchOverlay() {
     setOpen(false);
     setQuery('');
   }
+
+  // Close automatically once a Link inside the overlay navigates to a
+  // different route (rather than synchronously on click).
+  useCloseOnNavigate(open, close);
 
   if (!open) return null;
 
@@ -68,118 +77,107 @@ export default function SearchOverlay() {
       )
     : [];
 
+  const promoProducts = products.slice(0, 2);
+
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 9999 }}>
-      {/* Backdrop */}
-      <div
-        onClick={close}
-        style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)' }}
-      />
+    <div className="search-overlay">
+      <div className="search-overlay__topbar">
+        <span className="search-overlay__wordmark">
+          Veloc<span style={{ color: 'var(--accent)' }}>aris</span>
+        </span>
+        <button type="button" onClick={close} aria-label="close" className="search-overlay__close">
+          <XMarkIcon style={{ width: 20, height: 20 }} />
+        </button>
+      </div>
 
-      {/* Modal box */}
-      <div style={{
-        position: 'absolute', top: '10%', left: '50%', transform: 'translateX(-50%)',
-        width: '90%', maxWidth: 620,
-        background: 'var(--background)',
-        border: '1px solid var(--border-color)',
-        borderRadius: 20,
-        boxShadow: '0 24px 60px rgba(0,0,0,0.4)',
-        overflow: 'hidden',
-      }}>
+      <div className="search-overlay__content">
+        <div className="search-overlay__body">
+          <div className="search-overlay__search-col">
+            <p className="drawer-tag" style={{ color: 'var(--foreground)', fontSize: 12 }}>Search</p>
+            <div className="search-overlay__input-row">
+              <input
+                ref={inputRef}
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Type to search"
+                className="drawer-input search-overlay__input"
+              />
+              {q && (
+                <button type="button" onClick={() => setQuery('')} className="search-overlay__clear">
+                  Clear
+                </button>
+              )}
+            </div>
 
-        {/* Input row */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 18px', borderBottom: '1px solid var(--border-color)' }}>
-          <MagnifyingGlassIcon style={{ width: 18, height: 18, color: 'var(--accent)', flexShrink: 0 }} />
-          <input
-            ref={inputRef}
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search cars, bikes, categories…"
-            style={{
-              flex: 1, background: 'none', border: 'none', outline: 'none',
-              fontSize: 15, color: 'var(--foreground)',
-              caretColor: 'var(--accent)',
-            }}
-          />
-          {query && (
-            <button type="button" onClick={() => setQuery('')}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', display: 'flex', padding: 2 }}>
-              <XMarkIcon style={{ width: 16, height: 16 }} />
-            </button>
-          )}
-          <button type="button" onClick={close}
-            style={{ background: 'var(--surface)', border: '1px solid var(--border-color)', borderRadius: 6, padding: '3px 8px', fontSize: 11, color: 'var(--muted)', cursor: 'pointer', flexShrink: 0 }}>
-            ESC
-          </button>
-        </div>
+            {!q && (
+              <>
+                <p className="drawer-tag" style={{ color: 'var(--foreground)', fontSize: 12, marginTop: 40 }}>Suggestions</p>
+                <ul className="search-overlay__suggestions">
+                  {categories.map((cat) => (
+                    <li key={cat}>
+                      <Link href={`/?category=${encodeURIComponent(cat)}#catalogue`} scroll={false} onClick={close}>
+                        {cat}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
 
-        {/* Results */}
-        <div style={{ maxHeight: 420, overflowY: 'auto' }}>
+            {q && loading && (
+              <p style={{ marginTop: 40, color: 'var(--muted)', fontSize: 13 }}>Loading…</p>
+            )}
 
-          {!q && (
-            <p style={{ padding: '32px 18px', textAlign: 'center', color: 'var(--muted)', fontSize: 13, margin: 0 }}>
-              Start typing to search our collection…
-            </p>
-          )}
+            {q && !loading && results.length === 0 && (
+              <div style={{ marginTop: 40, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--foreground)', margin: 0 }}>
+                  This car does not exist in our catalog
+                </p>
+                <p style={{ fontSize: 12, color: 'var(--muted)', margin: 0 }}>
+                  Try a different name or browse by category
+                </p>
+              </div>
+            )}
+          </div>
 
-          {q && loading && (
-            <p style={{ padding: '32px 18px', textAlign: 'center', color: 'var(--muted)', fontSize: 13, margin: 0 }}>
-              Loading…
-            </p>
-          )}
-
-          {q && !loading && results.length === 0 && (
-            <div style={{ padding: '48px 18px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-              <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--foreground)', margin: 0 }}>
-                This car does not exist in our catalog
-              </p>
-              <p style={{ fontSize: 12, color: 'var(--muted)', margin: 0 }}>
-                Try a different name or browse by category
-              </p>
+          {!q && promoProducts.length > 0 && (
+            <div className="search-overlay__promo">
+              {promoProducts.map((product) => {
+                const img = product.images?.[0] ?? product.image;
+                return (
+                  <Link key={product.id} href={`/product/${product.id}`} className="search-overlay__promo-item">
+                    <img src={img} alt={product.name} />
+                    <span className="search-overlay__promo-name">{product.name}</span>
+                  </Link>
+                );
+              })}
             </div>
           )}
+        </div>
 
-          {q && !loading && results.length > 0 && (
-            <ul style={{ listStyle: 'none', margin: 0, padding: '8px 0' }}>
+        {q && !loading && results.length > 0 && (
+          <div className="search-overlay__results-section">
+            <p className="drawer-tag" style={{ color: 'var(--foreground)', fontSize: 12 }}>
+              {results.length} result{results.length !== 1 ? 's' : ''}
+            </p>
+            <div className="search-overlay__grid">
               {results.map((product) => {
                 const img = product.images?.[0] ?? product.image;
                 return (
-                  <li key={product.id}>
-                    <Link href={`/product/${product.id}`} onClick={close} style={{ textDecoration: 'none' }}>
-                      <div
-                        style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '10px 18px', transition: 'background 150ms', cursor: 'pointer' }}
-                        onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--surface)')}
-                        onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-                      >
-                        <div style={{ width: 54, height: 44, borderRadius: 10, overflow: 'hidden', background: 'var(--surface)', flexShrink: 0 }}>
-                          <img src={img} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-                        </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <p style={{ margin: 0, fontSize: 13, fontWeight: 500, color: 'var(--foreground)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                            {product.name}
-                          </p>
-                          <p style={{ margin: '2px 0 0', fontSize: 11, color: 'var(--muted)', letterSpacing: '0.4px', textTransform: 'uppercase' }}>
-                            {product.category}
-                          </p>
-                        </div>
-                        <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--accent)', flexShrink: 0 }}>
-                          ${product.price}
-                        </span>
-                      </div>
-                    </Link>
-                  </li>
+                  <Link key={product.id} href={`/product/${product.id}`} className="search-overlay__card">
+                    <div className="search-overlay__card-thumb">
+                      <img src={img} alt={product.name} />
+                    </div>
+                    <p className="search-overlay__card-name">{product.name}</p>
+                    <p className="search-overlay__card-category">{product.category}</p>
+                    <span className="search-overlay__card-price">${product.price}</span>
+                  </Link>
                 );
               })}
-            </ul>
-          )}
-
-          {q && results.length > 0 && (
-            <div style={{ padding: '10px 18px', borderTop: '1px solid var(--border-color)' }}>
-              <span style={{ fontSize: 11, color: 'var(--muted)' }}>{results.length} result{results.length !== 1 ? 's' : ''} found</span>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

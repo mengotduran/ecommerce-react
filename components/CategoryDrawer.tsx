@@ -83,6 +83,7 @@ export default function CategoryDrawer({ category, products, onClose }: {
 
         <Link
           href={`/?category=${encodeURIComponent(category.name)}#catalogue`}
+          scroll={false}
           onClick={onClose}
           className="category-drawer__shop-bar"
           style={MONO}

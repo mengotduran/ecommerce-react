@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useCart } from '../../hooks/useCart';
 import { useUIStore } from '../../store/uiStore';
+import { useCloseOnNavigate } from '../../hooks/useCloseOnNavigate';
 
 // Only the cart *body* is loaded dynamically (client-only, to avoid a
 // localStorage hydration mismatch). The close button and title are
@@ -31,6 +32,10 @@ export default function CartDrawer() {
   const open = useUIStore((s) => s.cartOpen);
   const closeCart = useUIStore((s) => s.closeCart);
   const { cart, updateCartQty, removeFromCart, emptyCart } = useCart();
+
+  // Close automatically once a Link inside the drawer navigates to a
+  // different route (rather than synchronously on click).
+  useCloseOnNavigate(open, closeCart);
 
   // Lock page scroll while the drawer is open, and let Escape close it.
   useEffect(() => {
@@ -71,7 +76,6 @@ export default function CartDrawer() {
             handleUpdateCartQty={updateCartQty}
             handleRemoveFromCart={removeFromCart}
             handleEmptyCart={emptyCart}
-            onNavigate={closeCart}
           />
         </div>
       </div>

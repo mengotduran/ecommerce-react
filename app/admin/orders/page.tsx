@@ -19,7 +19,11 @@ export default function AdminOrders() {
   const [loading, setLoading] = useState(true);
 
   const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
-  const load = () => fetch(`${API}/orders`, { headers }).then((r) => r.json()).then(setOrders).finally(() => setLoading(false));
+  const load = () => fetch(`${API}/orders`, { headers })
+    .then((r) => r.json())
+    .then((d) => setOrders(Array.isArray(d) ? d : []))
+    .catch(() => setOrders([]))
+    .finally(() => setLoading(false));
   useEffect(() => { load(); }, []);
 
   const updateStatus = async (id: string, status: string) => {

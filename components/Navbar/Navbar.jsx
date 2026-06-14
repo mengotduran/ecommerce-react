@@ -24,6 +24,7 @@ const Navbar = () => {
   const openCart = useUIStore((s) => s.openCart);
   const openAuth = useUIStore((s) => s.openAuth);
   const openLiked = useUIStore((s) => s.openLiked);
+  const openOrders = useUIStore((s) => s.openOrders);
   const [showCats, setShowCats]   = useState(false);
   const [showUser, setShowUser]   = useState(false);
   const [pendingOrders, setPendingOrders] = useState(0);
@@ -143,6 +144,7 @@ const Navbar = () => {
         <nav className="hidden items-center gap-7 sm:flex">
           <Link
             href="/?badge=new#catalogue"
+            scroll={false}
             className="text-[13px] text-muted transition-colors hover:text-foreground"
           >
             New arrivals
@@ -175,6 +177,7 @@ const Navbar = () => {
                   <Link
                     key={cat}
                     href={`/?category=${encodeURIComponent(cat)}#catalogue`}
+                    scroll={false}
                     onClick={() => setShowCats(false)}
                     style={{
                       display: 'block', padding: '9px 18px',
@@ -193,6 +196,7 @@ const Navbar = () => {
 
           <Link
             href="/?badge=sale#catalogue"
+            scroll={false}
             className="text-[13px] text-muted transition-colors hover:text-foreground"
           >
             Sale
@@ -215,13 +219,14 @@ const Navbar = () => {
         </button>
 
         {user && (
-          <Link
-            href="/orders"
+          <button
+            type="button"
+            onClick={openOrders}
             aria-label="orders"
             title="My orders"
-            style={{ position: 'relative', color: pathname === '/orders' ? 'var(--accent)' : mutedColor, display: 'flex', alignItems: 'center', transition: 'color 150ms' }}
+            style={{ position: 'relative', color: mutedColor, display: 'flex', alignItems: 'center', background: 'none', border: 'none', padding: 0, cursor: 'pointer', transition: 'color 150ms' }}
             onMouseEnter={(e) => (e.currentTarget.style.color = hoverColor)}
-            onMouseLeave={(e) => (e.currentTarget.style.color = pathname === '/orders' ? 'var(--accent)' : mutedColor)}
+            onMouseLeave={(e) => (e.currentTarget.style.color = mutedColor)}
           >
             <ArchiveBoxIcon style={{ width: 18, height: 18 }} />
             {pendingOrders > 0 && (
@@ -236,7 +241,7 @@ const Navbar = () => {
                 {pendingOrders}
               </span>
             )}
-          </Link>
+          </button>
         )}
 
         <button
@@ -308,15 +313,15 @@ const Navbar = () => {
                     <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', color: 'var(--accent)', display: 'block', marginTop: 4 }}>{user.role === 'SUPERADMIN' ? 'Super Admin' : 'Admin'}</span>
                   )}
                 </div>
-                <Link
-                  href="/orders"
-                  onClick={() => setShowUser(false)}
-                  style={{ display: 'block', padding: '9px 16px', fontSize: 13, color: 'var(--foreground)', textDecoration: 'none', transition: 'background 150ms' }}
+                <button
+                  type="button"
+                  onClick={() => { setShowUser(false); openOrders(); }}
+                  style={{ display: 'block', width: '100%', textAlign: 'left', padding: '9px 16px', fontSize: 13, color: 'var(--foreground)', background: 'none', border: 'none', cursor: 'pointer', transition: 'background 150ms' }}
                   onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--surface)')}
                   onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
                 >
                   My orders
-                </Link>
+                </button>
                 {(user.role === 'ADMIN' || user.role === 'SUPERADMIN') && (
                   <Link
                     href="/admin"

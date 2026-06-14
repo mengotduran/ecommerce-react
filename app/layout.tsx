@@ -9,6 +9,7 @@ import ScrollManager from '../components/ScrollManager';
 import CartDrawer from '../components/Cart/CartDrawer';
 import AuthDrawer from '../components/Auth/AuthDrawer';
 import LikedDrawer from '../components/Liked/LikedDrawer';
+import OrdersDrawer from '../components/Orders/OrdersDrawer';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const mono  = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' });
@@ -44,6 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <CartDrawer />
         <AuthDrawer />
         <LikedDrawer />
+        <OrdersDrawer />
       </body>
     </html>
   );

@@ -7,6 +7,7 @@ type UIState = {
   authOpen: boolean;
   authMode: AuthMode;
   likedOpen: boolean;
+  ordersOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
   openAuth: (mode?: AuthMode) => void;
@@ -14,6 +15,8 @@ type UIState = {
   setAuthMode: (mode: AuthMode) => void;
   openLiked: () => void;
   closeLiked: () => void;
+  openOrders: () => void;
+  closeOrders: () => void;
 };
 
 // Drawer UI state shared between the navbar (which opens these drawers)
@@ -24,11 +27,14 @@ export const useUIStore = create<UIState>((set) => ({
   authOpen: false,
   authMode: 'login',
   likedOpen: false,
-  openCart: () => set({ cartOpen: true, authOpen: false, likedOpen: false }),
+  ordersOpen: false,
+  openCart: () => set({ cartOpen: true, authOpen: false, likedOpen: false, ordersOpen: false }),
   closeCart: () => set({ cartOpen: false }),
-  openAuth: (mode = 'login') => set({ authOpen: true, authMode: mode, cartOpen: false, likedOpen: false }),
+  openAuth: (mode = 'login') => set({ authOpen: true, authMode: mode, cartOpen: false, likedOpen: false, ordersOpen: false }),
   closeAuth: () => set({ authOpen: false }),
   setAuthMode: (mode) => set({ authMode: mode }),
-  openLiked: () => set({ likedOpen: true, cartOpen: false, authOpen: false }),
+  openLiked: () => set({ likedOpen: true, cartOpen: false, authOpen: false, ordersOpen: false }),
   closeLiked: () => set({ likedOpen: false }),
+  openOrders: () => set({ ordersOpen: true, cartOpen: false, authOpen: false, likedOpen: false }),
+  closeOrders: () => set({ ordersOpen: false }),
 }));

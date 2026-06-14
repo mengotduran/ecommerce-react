@@ -34,7 +34,11 @@ export default function ApprovalsPage() {
 
   const load = () => {
     const url = isSuperAdmin ? `${API}/approvals` : `${API}/approvals/mine`;
-    fetch(url, { headers }).then((r) => r.json()).then(setRequests).finally(() => setLoading(false));
+    fetch(url, { headers })
+      .then((r) => r.json())
+      .then((d) => setRequests(Array.isArray(d) ? d : []))
+      .catch(() => setRequests([]))
+      .finally(() => setLoading(false));
   };
   useEffect(() => { load(); }, []);
 
