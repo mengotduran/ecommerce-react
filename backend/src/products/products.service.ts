@@ -16,6 +16,17 @@ export class ProductsService {
     return product?.deletedAt ? null : product;
   }
 
+  // Admin: list soft-deleted products so they can be restored.
+  findDeleted() {
+    return this.prisma.product.findMany({ where: { deletedAt: { not: null } }, orderBy: { deletedAt: 'desc' } });
+  }
+
+  async restore(id: string) {
+    const p = await this.prisma.product.findUnique({ where: { id } });
+    if (!p) throw new NotFoundException('Product not found');
+    return this.prisma.product.update({ where: { id }, data: { deletedAt: null } });
+  }
+
   create(dto: CreateProductDto) {
     return this.prisma.product.create({ data: { ...dto, price: dto.price } });
   }

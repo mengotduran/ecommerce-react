@@ -17,7 +17,18 @@ export class ProductsController {
   @Get() findAll() { return this.productsService.findAll(); }
   @Get('featured') findFeatured() { return this.productsService.findFeatured(); }
   @Get('catalogue') findCatalogue() { return this.productsService.findCatalogue(); }
+
+  // Admin: soft-deleted products + restore. Declared before `:id` so the
+  // literal "deleted" path isn't swallowed by the dynamic id route.
+  @Get('deleted')
+  @UseGuards(JwtAuthGuard, RolesGuard) @Roles('ADMIN')
+  findDeleted() { return this.productsService.findDeleted(); }
+
   @Get(':id') findOne(@Param('id') id: string) { return this.productsService.findById(id); }
+
+  @Patch(':id/restore')
+  @UseGuards(JwtAuthGuard, RolesGuard) @Roles('ADMIN')
+  restore(@Param('id') id: string) { return this.productsService.restore(id); }
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard) @Roles('ADMIN')

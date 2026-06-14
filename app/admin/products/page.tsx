@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useAuthStore } from '../../../store/authStore';
-import { PencilIcon, TrashIcon, PlusIcon, XMarkIcon, ClockIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
+import { PencilIcon, TrashIcon, PlusIcon, XMarkIcon, ClockIcon, CheckCircleIcon, XCircleIcon, ArrowUturnLeftIcon } from '@heroicons/react/24/outline';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 const EMPTY = { name: '', description: '', price: '', image: '', images: '', category: '', stock: '0', featured: false, badge: '', features: '' };
@@ -29,6 +29,7 @@ export default function AdminProducts() {
 
   const [products, setProducts]     = useState<any[]>([]);
   const [requests, setRequests]     = useState<ApprovalRequest[]>([]);
+  const [deleted, setDeleted]       = useState<any[]>([]);
   const [loading, setLoading]       = useState(true);
   const [modal, setModal]           = useState<'create' | 'edit' | null>(null);
   const [form, setForm]             = useState<any>(EMPTY);
@@ -41,12 +42,14 @@ export default function AdminProducts() {
   const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
 
   const load = useCallback(async () => {
-    const [prods, reqs] = await Promise.all([
+    const [prods, reqs, del] = await Promise.all([
       fetch(`${API}/products`, { headers }).then((r) => r.json()),
       isSuperAdmin ? Promise.resolve([]) : fetch(`${API}/approvals/mine`, { headers }).then((r) => r.json()),
+      fetch(`${API}/products/deleted`, { headers }).then((r) => r.json()).catch(() => []),
     ]);
     setProducts(Array.isArray(prods) ? prods : []);
     setRequests(Array.isArray(reqs) ? reqs : []);
+    setDeleted(Array.isArray(del) ? del : []);
     setLoading(false);
   }, [token, isSuperAdmin]);
 
@@ -98,6 +101,12 @@ export default function AdminProducts() {
     } else {
       setNote(''); setNoteModal({ type: 'delete', id });
     }
+  };
+
+  const restore = async (id: string, name: string) => {
+    await fetch(`${API}/products/${id}/restore`, { method: 'PATCH', headers });
+    showToast(`"${name}" restored`);
+    load();
   };
 
   const submitRequest = async () => {
@@ -222,6 +231,48 @@ export default function AdminProducts() {
               })}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Deleted products — soft-deleted items, restorable */}
+      {!loading && (
+        <div style={{ marginTop: 32 }}>
+          <h2 style={{ fontSize: 14, fontWeight: 600, color: 'var(--foreground)', margin: '0 0 4px' }}>
+            Deleted products{deleted.length > 0 ? ` (${deleted.length})` : ''}
+          </h2>
+          <p style={{ fontSize: 12, color: 'var(--muted)', margin: '0 0 14px' }}>
+            Hidden from the store but kept for order history. Restore to make them live again.
+          </p>
+          {deleted.length === 0 ? (
+            <p style={{ fontSize: 13, color: 'var(--muted)', padding: '16px 0' }}>No deleted products.</p>
+          ) : (
+            <div className="table-scroll" style={{ background: 'var(--surface)', border: '1px solid var(--border-color)', borderRadius: 14 }}>
+              <table style={{ width: '100%', minWidth: 560, borderCollapse: 'collapse', fontSize: 13 }}>
+                <tbody>
+                  {deleted.map((p) => (
+                    <tr key={p.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                      <td style={{ padding: '12px 16px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <img src={p.image} alt={p.name} style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'cover', flexShrink: 0, opacity: 0.6 }} />
+                          <span style={{ color: 'var(--foreground)', fontWeight: 500 }}>{p.name}</span>
+                        </div>
+                      </td>
+                      <td style={{ padding: '12px 16px', color: 'var(--muted)' }}>{p.category}</td>
+                      <td style={{ padding: '12px 16px', color: 'var(--muted)' }}>{p.featured ? 'Featured' : 'Catalogue'}</td>
+                      <td style={{ padding: '12px 16px', textAlign: 'right' }}>
+                        <button onClick={() => restore(p.id, p.name)}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '6px 12px', background: 'none', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, fontWeight: 600, color: 'var(--muted)', cursor: 'pointer', transition: 'all 150ms' }}
+                          onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)'; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.color = 'var(--muted)'; }}>
+                          <ArrowUturnLeftIcon style={{ width: 13, height: 13 }} /> Restore
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 
