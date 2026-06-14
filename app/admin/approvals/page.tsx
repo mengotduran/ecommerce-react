@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '../../../store/authStore';
+import { useUIStore } from '../../../store/uiStore';
 import { CheckIcon, XMarkIcon, ClockIcon } from '@heroicons/react/24/outline';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
@@ -25,6 +26,7 @@ export default function ApprovalsPage() {
   const token  = useAuthStore((s) => s.token);
   const user   = useAuthStore((s) => s.user);
   const isSuperAdmin = user?.role === 'SUPERADMIN';
+  const setPendingApprovals = useUIStore((s) => s.setPendingApprovals);
 
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading]   = useState(true);
@@ -66,6 +68,10 @@ export default function ApprovalsPage() {
       }
       showToast(action === 'approve' ? 'Request approved' : 'Request rejected', true);
       load();
+      if (isSuperAdmin) {
+        fetch(`${API}/approvals/count`, { headers })
+          .then((r) => r.json()).then((d) => setPendingApprovals(d.count ?? 0)).catch(() => {});
+      }
     } catch (e: any) {
       showToast(e?.message || 'Action failed — please try again', false);
     } finally {

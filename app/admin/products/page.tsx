@@ -22,6 +22,24 @@ function getPriceRequest(requests: ApprovalRequest[], productId: string) {
     .sort((a, b) => (a.status === 'PENDING' ? -1 : 1))[0] ?? null;
 }
 
+// Normalize a product (or form values) into a shape that can be compared
+// with JSON.stringify, so edits can be skipped when nothing actually changed.
+function comparableProduct(p: any) {
+  const toList = (v: any) => Array.isArray(v) ? v : (v ? String(v).split(',').map((s: string) => s.trim()).filter(Boolean) : []);
+  return {
+    name: p.name ?? '',
+    description: p.description ?? '',
+    price: Number(p.price) || 0,
+    stock: Number(p.stock) || 0,
+    image: p.image ?? '',
+    images: toList(p.images),
+    category: p.category ?? '',
+    featured: !!p.featured,
+    badge: p.badge || null,
+    features: toList(p.features),
+  };
+}
+
 export default function AdminProducts() {
   const token        = useAuthStore((s) => s.token);
   const user         = useAuthStore((s) => s.user);
@@ -38,6 +56,7 @@ export default function AdminProducts() {
   const [noteModal, setNoteModal]   = useState<{ type: 'delete' | 'price'; id: string; product?: any } | null>(null);
   const [note, setNote]             = useState('');
   const [toast, setToast]           = useState('');
+  const [confirmModal, setConfirmModal] = useState<{ id: string; name: string } | null>(null);
 
   const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
 
@@ -64,6 +83,14 @@ export default function AdminProducts() {
   };
 
   const save = async () => {
+    if (modal === 'edit') {
+      const original = products.find((p) => p.id === editId);
+      if (original && JSON.stringify(comparableProduct(form)) === JSON.stringify(comparableProduct(original))) {
+        showToast("Nothing to save — you haven't changed anything yet");
+        return;
+      }
+    }
+
     setSaving(true);
     const body = {
       ...form,
@@ -96,11 +123,18 @@ export default function AdminProducts() {
 
   const remove = (id: string, name: string) => {
     if (isSuperAdmin) {
-      if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
-      fetch(`${API}/products/${id}`, { method: 'DELETE', headers }).then(load);
+      setConfirmModal({ id, name });
     } else {
       setNote(''); setNoteModal({ type: 'delete', id });
     }
+  };
+
+  const confirmDelete = async () => {
+    if (!confirmModal) return;
+    await fetch(`${API}/products/${confirmModal.id}`, { method: 'DELETE', headers });
+    showToast(`"${confirmModal.name}" deleted`);
+    setConfirmModal(null);
+    load();
   };
 
   const restore = async (id: string, name: string) => {
@@ -138,7 +172,7 @@ export default function AdminProducts() {
     <div>
       {/* Toast */}
       {toast && (
-        <div style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 9999, background: '#1a1a1a', color: '#fff', padding: '12px 18px', borderRadius: 10, fontSize: 13, border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 10000, background: '#1a1a1a', color: '#fff', padding: '12px 18px', borderRadius: 10, fontSize: 13, border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 8 }}>
           <ClockIcon style={{ width: 15, height: 15, color: 'var(--accent)', flexShrink: 0 }} /> {toast}
         </div>
       )}
@@ -350,6 +384,27 @@ export default function AdminProducts() {
             <button onClick={save} disabled={saving} style={{ marginTop: 20, width: '100%', padding: '11px 0', background: 'var(--accent)', color: '#000', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer' }}>
               {saving ? 'Submitting…' : modal === 'create' ? (isSuperAdmin ? 'Create product' : 'Submit for approval') : 'Save changes'}
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Delete confirmation modal (superadmin direct delete) */}
+      {confirmModal && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999 }}>
+          <div onClick={() => setConfirmModal(null)} style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }} />
+          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: '90%', maxWidth: 420, background: 'var(--background)', border: '1px solid var(--border-color)', borderRadius: 16, padding: 28 }}>
+            <h2 style={{ fontSize: 16, fontWeight: 600, color: 'var(--foreground)', margin: '0 0 8px' }}>Delete product</h2>
+            <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 18px' }}>
+              Delete "{confirmModal.name}"? This cannot be undone.
+            </p>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={() => setConfirmModal(null)} style={{ flex: 1, padding: '10px 0', background: 'none', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, color: 'var(--muted)', cursor: 'pointer' }}>
+                Cancel
+              </button>
+              <button onClick={confirmDelete} style={{ flex: 1, padding: '10px 0', background: '#e11d48', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer' }}>
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       )}

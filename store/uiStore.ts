@@ -17,6 +17,8 @@ type UIState = {
   closeLiked: () => void;
   openOrders: () => void;
   closeOrders: () => void;
+  pendingApprovals: number;
+  setPendingApprovals: (count: number) => void;
 };
 
 // Drawer UI state shared between the navbar (which opens these drawers)
@@ -37,4 +39,6 @@ export const useUIStore = create<UIState>((set) => ({
   closeLiked: () => set({ likedOpen: false }),
   openOrders: () => set({ ordersOpen: true, cartOpen: false, authOpen: false, likedOpen: false }),
   closeOrders: () => set({ ordersOpen: false }),
+  pendingApprovals: 0,
+  setPendingApprovals: (count) => set({ pendingApprovals: count }),
 }));

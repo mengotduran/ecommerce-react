@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '../../store/authStore';
+import { useUIStore } from '../../store/uiStore';
 import {
   ChartBarIcon, CubeIcon, ShoppingBagIcon, UsersIcon, CheckBadgeIcon,
 } from '@heroicons/react/24/outline';
@@ -16,13 +17,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const user       = useAuthStore((s) => s.user);
   const isSuperAdmin = user?.role === 'SUPERADMIN';
 
-  const [pendingCount, setPendingCount] = useState(0);
+  const pendingCount    = useUIStore((s) => s.pendingApprovals);
+  const setPendingCount = useUIStore((s) => s.setPendingApprovals);
 
   useEffect(() => {
     if (!isSuperAdmin || !token) return;
     fetch(`${API}/approvals/count`, { headers: { Authorization: `Bearer ${token}` } })
       .then((r) => r.json()).then((d) => setPendingCount(d.count ?? 0)).catch(() => {});
-  }, [isSuperAdmin, token]);
+  }, [isSuperAdmin, token, setPendingCount]);
 
   const NAV = [
     { href: '/admin',             label: 'Overview',   icon: ChartBarIcon,    badge: 0 },
