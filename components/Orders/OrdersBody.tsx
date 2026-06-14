@@ -20,18 +20,25 @@ const STATUS_STYLES: Record<string, { bg: string; color: string }> = {
 // clickable, even while this chunk is still loading.
 export default function OrdersBody() {
   const token = useAuthStore((s) => s.token);
+  const ordersOpen = useUIStore((s) => s.ordersOpen);
   const openAuth = useUIStore((s) => s.openAuth);
 
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Refetch on mount AND every time the drawer opens. This drawer is always
+  // mounted in the layout, so a one-time mount fetch would serve the
+  // page-load snapshot forever — a just-placed order wouldn't appear until
+  // a manual refresh. We don't reset `loading` on refetch, so the current
+  // list stays visible (no blank flash) while the fresh data loads in.
   useEffect(() => {
-    if (!token) { setLoading(false); return; }
+    if (!token) { setOrders([]); setLoading(false); return; }
     fetch(`${API}/orders/mine`, { headers: { Authorization: `Bearer ${token}` } })
       .then((r) => r.json())
       .then((d) => setOrders(Array.isArray(d) ? d : []))
+      .catch(() => {})
       .finally(() => setLoading(false));
-  }, [token]);
+  }, [token, ordersOpen]);
 
   if (loading) return null;
 
