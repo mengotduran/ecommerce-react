@@ -69,7 +69,7 @@ const Cart = ({ cart, handleRemoveFromCart, handleUpdateCartQty, handleEmptyCart
           <span>{cart.subtotal.formatted_with_symbol}</span>
         </div>
 
-        <Link href="/checkout" className="cart-drawer__checkout">
+        <Link href="/checkout" className="cart-drawer__checkout" prefetch={false}>
           Checkout
         </Link>
 

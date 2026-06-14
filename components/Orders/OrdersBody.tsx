@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ArchiveBoxIcon } from '@heroicons/react/24/outline';
+import { ArchiveBoxIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { useAuthStore } from '../../store/authStore';
 import { useUIStore } from '../../store/uiStore';
 
@@ -25,6 +25,8 @@ export default function OrdersBody() {
 
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   // Refetch on mount AND every time the drawer opens. This drawer is always
   // mounted in the layout, so a one-time mount fetch would serve the
@@ -34,11 +36,23 @@ export default function OrdersBody() {
   useEffect(() => {
     if (!token) { setOrders([]); setLoading(false); return; }
     fetch(`${API}/orders/mine`, { headers: { Authorization: `Bearer ${token}` } })
-      .then((r) => r.json())
+      .then((r) => (r.ok ? r.json() : []))
       .then((d) => setOrders(Array.isArray(d) ? d : []))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [token, ordersOpen]);
+
+  const confirmDelete = async () => {
+    if (!confirmId) return;
+    setDeleting(true);
+    await fetch(`${API}/orders/${confirmId}/hide`, {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setOrders((prev) => prev.filter((o) => o.id !== confirmId));
+    setDeleting(false);
+    setConfirmId(null);
+  };
 
   if (loading) return null;
 
@@ -84,6 +98,17 @@ export default function OrdersBody() {
                 <span className="orders-drawer__status" style={{ background: statusStyle.bg, color: statusStyle.color }}>
                   {order.status}
                 </span>
+                <button
+                  type="button"
+                  onClick={() => setConfirmId(order.id)}
+                  aria-label="Delete order"
+                  title="Remove from my orders"
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', padding: 4, display: 'flex', transition: 'color 150ms' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = '#e11d48')}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted)')}
+                >
+                  <TrashIcon style={{ width: 15, height: 15 }} />
+                </button>
               </div>
             </div>
 
@@ -104,6 +129,26 @@ export default function OrdersBody() {
           </div>
         );
       })}
+
+      {confirmId && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 10001 }}>
+          <div onClick={() => !deleting && setConfirmId(null)} style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }} />
+          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: '90%', maxWidth: 380, background: 'var(--background)', border: '1px solid var(--border-color)', borderRadius: 16, padding: 28 }}>
+            <h2 style={{ fontSize: 16, fontWeight: 600, color: 'var(--foreground)', margin: '0 0 8px' }}>Remove order</h2>
+            <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 18px' }}>
+              This removes the order from your order history. It will remain visible on the admin dashboard.
+            </p>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={() => setConfirmId(null)} disabled={deleting} style={{ flex: 1, padding: '10px 0', background: 'none', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, color: 'var(--muted)', cursor: deleting ? 'wait' : 'pointer' }}>
+                Cancel
+              </button>
+              <button onClick={confirmDelete} disabled={deleting} style={{ flex: 1, padding: '10px 0', background: '#e11d48', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#fff', cursor: deleting ? 'wait' : 'pointer' }}>
+                {deleting ? 'Removing…' : 'Remove'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

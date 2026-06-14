@@ -782,7 +782,11 @@ body {
 .form-input:-webkit-autofill,
 .form-input:-webkit-autofill:hover,
 .form-input:-webkit-autofill:focus,
-.form-input:-webkit-autofill:active {
+.form-input:-webkit-autofill:active,
+.drawer-input:-webkit-autofill,
+.drawer-input:-webkit-autofill:hover,
+.drawer-input:-webkit-autofill:focus,
+.drawer-input:-webkit-autofill:active {
   -webkit-box-shadow: 0 0 0 1000px var(--background) inset !important;
   -webkit-text-fill-color: var(--foreground) !important;
   caret-color: var(--foreground);

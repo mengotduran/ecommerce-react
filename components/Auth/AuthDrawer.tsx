@@ -20,6 +20,7 @@ export default function AuthDrawer() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError]       = useState('');
+  const [success, setSuccess]   = useState('');
   const [loading, setLoading]   = useState(false);
 
   const isLogin = mode === 'login';
@@ -50,20 +51,34 @@ export default function AuthDrawer() {
     setEmail('');
     setPassword('');
     setError('');
+    setSuccess('');
     setShowPassword(false);
   }, [open, mode]);
+
+  // Keep the spinner visible for a minimum stretch so a fast response
+  // (success or rejection) doesn't look like nothing happened at all.
+  const MIN_LOADING_MS = 500;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     setLoading(true);
+    const start = Date.now();
+    const waitOut = async () => {
+      const remaining = MIN_LOADING_MS - (Date.now() - start);
+      if (remaining > 0) await new Promise((r) => setTimeout(r, remaining));
+    };
     try {
       if (isLogin) await login(email, password);
       else await register(name, email, password);
-      closeAuth();
+      await waitOut();
+      setLoading(false);
+      setSuccess(isLogin ? 'Signed in successfully' : 'Account created successfully');
+      setTimeout(() => closeAuth(), 700);
     } catch (err: any) {
+      await waitOut();
       setError(err.message);
-    } finally {
       setLoading(false);
     }
   };
@@ -91,6 +106,12 @@ export default function AuthDrawer() {
           {error && (
             <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: 8, padding: '10px 14px', marginBottom: 20 }}>
               <p style={{ fontSize: 13, color: '#991b1b', margin: 0 }}>{error}</p>
+            </div>
+          )}
+
+          {success && (
+            <div style={{ background: '#dcfce7', border: '1px solid #86efac', borderRadius: 8, padding: '10px 14px', marginBottom: 20 }}>
+              <p style={{ fontSize: 13, color: '#166534', margin: 0 }}>{success}</p>
             </div>
           )}
 
@@ -144,7 +165,7 @@ export default function AuthDrawer() {
               </div>
             </div>
 
-            <button type="submit" disabled={loading} className="drawer-submit">
+            <button type="submit" disabled={loading || !!success} className="drawer-submit">
               {loading ? (
                 <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                   <span className="btn-spinner drawer-spinner" />

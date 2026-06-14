@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Param, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Param, Body, UseGuards } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -26,5 +26,19 @@ export class OrdersController {
   @UseGuards(RolesGuard) @Roles('ADMIN')
   updateStatus(@Param('id') id: string, @Body('status') status: string) {
     return this.orders.updateStatus(id, status);
+  }
+
+  // Any signed-in user can remove an order from their own order history.
+  // It stays on the admin dashboard — only hidden for the user.
+  @Patch(':id/hide')
+  hide(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.orders.hideForUser(id, user.id);
+  }
+
+  // SUPERADMIN-only: permanently deletes the order.
+  @Delete(':id')
+  @UseGuards(RolesGuard) @Roles('SUPERADMIN')
+  remove(@Param('id') id: string) {
+    return this.orders.remove(id);
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -27,7 +27,7 @@ export class OrdersService {
 
   findByUser(userId: string) {
     return this.prisma.order.findMany({
-      where: { userId },
+      where: { userId, hiddenByUser: false },
       include: { items: { include: { product: { select: { name: true, image: true } } } } },
       orderBy: { createdAt: 'desc' },
     });
@@ -35,5 +35,20 @@ export class OrdersService {
 
   updateStatus(id: string, status: string) {
     return this.prisma.order.update({ where: { id }, data: { status: status as any } });
+  }
+
+  // User-facing "delete": hides the order from the user's own order history
+  // without removing it, so it still shows on the admin dashboard.
+  async hideForUser(id: string, userId: string) {
+    const order = await this.prisma.order.findUnique({ where: { id } });
+    if (!order) throw new NotFoundException('Order not found');
+    if (order.userId !== userId) throw new ForbiddenException('Not your order');
+    return this.prisma.order.update({ where: { id }, data: { hiddenByUser: true } });
+  }
+
+  // SUPERADMIN-only: permanently removes the order and its items.
+  async remove(id: string) {
+    await this.prisma.orderItem.deleteMany({ where: { orderId: id } });
+    return this.prisma.order.delete({ where: { id } });
   }
 }

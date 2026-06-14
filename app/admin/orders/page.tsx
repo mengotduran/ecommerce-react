@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '../../../store/authStore';
+import { TrashIcon } from '@heroicons/react/24/outline';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 const STATUSES = ['PENDING', 'PAID', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
@@ -15,8 +16,12 @@ const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
 
 export default function AdminOrders() {
   const token = useAuthStore((s) => s.token);
+  const user  = useAuthStore((s) => s.user);
+  const isSuperAdmin = user?.role === 'SUPERADMIN';
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
   const load = () => fetch(`${API}/orders`, { headers })
@@ -31,6 +36,15 @@ export default function AdminOrders() {
     setOrders((prev) => prev.map((o) => o.id === id ? { ...o, status } : o));
   };
 
+  const confirmDelete = async () => {
+    if (!confirmId) return;
+    setDeleting(true);
+    await fetch(`${API}/orders/${confirmId}`, { method: 'DELETE', headers });
+    setOrders((prev) => prev.filter((o) => o.id !== confirmId));
+    setDeleting(false);
+    setConfirmId(null);
+  };
+
   return (
     <div>
       <h1 style={{ fontSize: 20, fontWeight: 600, letterSpacing: '-0.4px', color: 'var(--foreground)', margin: '0 0 24px' }}>Orders</h1>
@@ -42,7 +56,7 @@ export default function AdminOrders() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
-                {['Customer', 'Items', 'Total', 'Date', 'Status'].map((h) => (
+                {['Customer', 'Items', 'Total', 'Date', 'Status', ...(isSuperAdmin ? [''] : [])].map((h) => (
                   <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: 11, fontWeight: 600, letterSpacing: '0.4px', textTransform: 'uppercase', color: 'var(--muted)' }}>{h}</th>
                 ))}
               </tr>
@@ -77,11 +91,40 @@ export default function AdminOrders() {
                         {STATUSES.map((st) => <option key={st} value={st}>{st}</option>)}
                       </select>
                     </td>
+                    {isSuperAdmin && (
+                      <td style={{ padding: '12px 16px', textAlign: 'right' }}>
+                        <button onClick={() => setConfirmId(o.id)} title="Permanently delete order"
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', padding: 4, transition: 'color 150ms' }}
+                          onMouseEnter={(e) => (e.currentTarget.style.color = '#e11d48')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted)')}>
+                          <TrashIcon style={{ width: 15, height: 15 }} />
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 );
               })}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {confirmId && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999 }}>
+          <div onClick={() => !deleting && setConfirmId(null)} style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }} />
+          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: '90%', maxWidth: 420, background: 'var(--background)', border: '1px solid var(--border-color)', borderRadius: 16, padding: 28 }}>
+            <h2 style={{ fontSize: 16, fontWeight: 600, color: 'var(--foreground)', margin: '0 0 8px' }}>Delete order</h2>
+            <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 18px' }}>
+              Permanently delete this order? This cannot be undone.
+            </p>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={() => setConfirmId(null)} disabled={deleting} style={{ flex: 1, padding: '10px 0', background: 'none', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, color: 'var(--muted)', cursor: deleting ? 'wait' : 'pointer' }}>
+                Cancel
+              </button>
+              <button onClick={confirmDelete} disabled={deleting} style={{ flex: 1, padding: '10px 0', background: '#e11d48', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#fff', cursor: deleting ? 'wait' : 'pointer' }}>
+                {deleting ? 'Deleting…' : 'Delete'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
