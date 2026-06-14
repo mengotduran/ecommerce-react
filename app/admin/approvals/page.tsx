@@ -29,8 +29,15 @@ export default function ApprovalsPage() {
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading]   = useState(true);
   const [reason, setReason]     = useState<Record<string, string>>({});
+  const [acting, setActing]     = useState<string | null>(null);
+  const [toast, setToast]       = useState<{ msg: string; ok: boolean } | null>(null);
 
   const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+
+  const showToast = (msg: string, ok: boolean) => {
+    setToast({ msg, ok });
+    setTimeout(() => setToast(null), 4000);
+  };
 
   const load = () => {
     const url = isSuperAdmin ? `${API}/approvals` : `${API}/approvals/mine`;
@@ -43,11 +50,27 @@ export default function ApprovalsPage() {
   useEffect(() => { load(); }, []);
 
   const act = async (id: string, action: 'approve' | 'reject') => {
-    await fetch(`${API}/approvals/${id}/${action}`, {
-      method: 'PATCH', headers,
-      body: JSON.stringify({ reason: reason[id] || undefined }),
-    });
-    load();
+    setActing(id);
+    try {
+      const res = await fetch(`${API}/approvals/${id}/${action}`, {
+        method: 'PATCH', headers,
+        body: JSON.stringify({ reason: reason[id] || undefined }),
+      });
+      // The old code ignored the response entirely and always reloaded, so a
+      // 4xx/5xx (or the action throwing server-side) looked like "nothing
+      // happened" — the still-PENDING row just re-rendered. Surface the real
+      // error and only reload on success.
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.message || `Request failed (${res.status})`);
+      }
+      showToast(action === 'approve' ? 'Request approved' : 'Request rejected', true);
+      load();
+    } catch (e: any) {
+      showToast(e?.message || 'Action failed — please try again', false);
+    } finally {
+      setActing(null);
+    }
   };
 
   const formatPayload = (type: string, payload: any) => {
@@ -64,6 +87,13 @@ export default function ApprovalsPage() {
 
   return (
     <div>
+      {/* Action feedback — previously approve/reject failures were silent */}
+      {toast && (
+        <div style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 9999, maxWidth: 360, background: '#1a1a1a', color: '#fff', padding: '12px 18px', borderRadius: 10, fontSize: 13, border: `1px solid ${toast.ok ? 'var(--accent)' : '#991b1b'}` }}>
+          {toast.msg}
+        </div>
+      )}
+
       <h1 style={{ fontSize: 20, fontWeight: 600, letterSpacing: '-0.4px', color: 'var(--foreground)', margin: '0 0 8px' }}>
         Approval requests
       </h1>
@@ -117,13 +147,13 @@ export default function ApprovalsPage() {
                           onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--accent)')}
                           onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--border-color)')}
                         />
-                        <div style={{ display: 'flex', gap: 8 }}>
-                          <button onClick={() => act(r.id, 'approve')}
-                            style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '8px 0', background: '#dcfce7', color: '#166534', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                        <div style={{ display: 'flex', gap: 8, opacity: acting === r.id ? 0.6 : 1 }}>
+                          <button onClick={() => act(r.id, 'approve')} disabled={acting === r.id}
+                            style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '8px 0', background: '#dcfce7', color: '#166534', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: acting === r.id ? 'wait' : 'pointer' }}>
                             <CheckIcon style={{ width: 13, height: 13 }} /> Approve
                           </button>
-                          <button onClick={() => act(r.id, 'reject')}
-                            style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '8px 0', background: '#fee2e2', color: '#991b1b', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                          <button onClick={() => act(r.id, 'reject')} disabled={acting === r.id}
+                            style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '8px 0', background: '#fee2e2', color: '#991b1b', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: acting === r.id ? 'wait' : 'pointer' }}>
                             <XMarkIcon style={{ width: 13, height: 13 }} /> Reject
                           </button>
                         </div>
