@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -48,9 +49,36 @@ export class ApprovalsService {
     if (!req) throw new NotFoundException('Request not found');
     if (req.status !== 'PENDING') throw new BadRequestException('Request already resolved');
 
-    await this.execute(req.type, req.payload as any);
+    // Apply the underlying change first. If it fails (e.g. deleting a product
+    // that has existing orders, or a record that's since been removed),
+    // translate the raw Prisma error into a clear message and leave the
+    // request PENDING — otherwise Nest masks it as a generic 500 and the
+    // approval silently appears to "do nothing".
+    try {
+      await this.execute(req.type, req.payload as any);
+    } catch (e) {
+      throw this.toReadableError(e);
+    }
 
     return this.prisma.approvalRequest.update({ where: { id }, data: { status: 'APPROVED', reason } });
+  }
+
+  private toReadableError(e: unknown): BadRequestException {
+    if (e instanceof Prisma.PrismaClientKnownRequestError) {
+      // Foreign-key constraint — almost always deleting a product that has
+      // order items, which would corrupt order history.
+      if (e.code === 'P2003') {
+        return new BadRequestException(
+          'Cannot delete this product because it has existing orders. Remove or reassign those orders first.',
+        );
+      }
+      // Record the action targets no longer exists.
+      if (e.code === 'P2025') {
+        return new BadRequestException('The item this request refers to no longer exists.');
+      }
+    }
+    const message = e instanceof Error ? e.message : 'Unknown error';
+    return new BadRequestException(`Could not apply this request: ${message}`);
   }
 
   async reject(id: string, reason?: string) {
