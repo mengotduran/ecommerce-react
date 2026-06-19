@@ -61,7 +61,7 @@ export default function CartDrawer() {
           <XMarkIcon style={{ width: 18, height: 18 }} />
         </button>
 
-        <div className="page-drawer__content">
+        <div className="page-drawer__content cart-drawer__content">
           <div className="cart-drawer__header">
             <h1 className="cart-drawer__title">Bag</h1>
           </div>

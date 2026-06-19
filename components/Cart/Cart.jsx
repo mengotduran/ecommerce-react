@@ -38,7 +38,7 @@ const Cart = ({ cart, handleRemoveFromCart, handleUpdateCartQty, handleEmptyCart
   }
 
   return (
-    <div>
+    <div className="cart-drawer__body">
       <div className="cart-drawer__list">
         {cart.line_items.map((item) => (
           <CartItem

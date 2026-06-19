@@ -69,15 +69,30 @@ const PaymentForm = ({ checkoutToken, backStep, shippingData, onCaptureCheckout,
         },
       };
 
-      if (token) {
-        const res = await fetch(`${API}/orders`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ items }),
-        });
-        const saved = await res.json();
-        orderData.id = saved.id;
-      }
+      // Save the order whether or not the buyer is logged in (guest checkout).
+      // The auth header is only attached when a token exists, so logged-in
+      // orders are still tied to the user; guest orders carry their own
+      // contact + shipping details.
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers.Authorization = `Bearer ${token}`;
+
+      const res = await fetch(`${API}/orders`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          items,
+          email:           shippingData.email,
+          customerName:    [shippingData.firstName, shippingData.lastName].filter(Boolean).join(' '),
+          shippingStreet:  [shippingData.address1, shippingData.address2].filter(Boolean).join(', '),
+          shippingCity:    shippingData.city,
+          shippingZip:     shippingData.zip,
+          shippingCountry: shippingData.country,
+          shippingMethod:  shippingData.shipping,
+        }),
+      });
+      if (!res.ok) throw new Error('Order request failed');
+      const saved = await res.json();
+      orderData.id = saved.id;
 
       onCaptureCheckout(checkoutToken.id, orderData);
       nextStep();

@@ -68,12 +68,22 @@ model Product {
 
 model Order {
   id            String      @id @default(cuid())
-  user          User        @relation(fields: [userId], references: [id])
-  userId        String
+  // Optional: guest (logged-out) checkouts have no user.
+  user          User?       @relation(fields: [userId], references: [id])
+  userId        String?
   status        OrderStatus @default(PENDING)
   total         Decimal     @db.Decimal(10, 2)
   items         OrderItem[]
   hiddenByUser  Boolean     @default(false)
+  // Contact + shipping captured at checkout (for guests, and so admin can
+  // fulfil any order without depending on the user record).
+  email           String?
+  customerName    String?
+  shippingStreet  String?
+  shippingCity    String?
+  shippingZip     String?
+  shippingCountry String?
+  shippingMethod  String?
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 }

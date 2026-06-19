@@ -70,8 +70,11 @@ export default function AdminOrders() {
                     onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
                   >
                     <td style={{ padding: '12px 16px' }}>
-                      <p style={{ margin: 0, fontWeight: 500, color: 'var(--foreground)' }}>{o.user.name}</p>
-                      <p style={{ margin: '2px 0 0', fontSize: 11, color: 'var(--muted)' }}>{o.user.email}</p>
+                      <p style={{ margin: 0, fontWeight: 500, color: 'var(--foreground)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                        {o.user?.name ?? o.customerName ?? 'Guest'}
+                        {!o.user && <span style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.4px', color: 'var(--muted)', border: '1px solid var(--border-color)', borderRadius: 4, padding: '1px 5px' }}>Guest</span>}
+                      </p>
+                      <p style={{ margin: '2px 0 0', fontSize: 11, color: 'var(--muted)' }}>{o.user?.email ?? o.email ?? '—'}</p>
                     </td>
                     <td style={{ padding: '12px 16px', color: 'var(--muted)' }}>
                       {o.items.map((i: any) => (

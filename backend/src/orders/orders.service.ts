@@ -5,14 +5,35 @@ import { PrismaService } from '../prisma/prisma.service';
 export class OrdersService {
   constructor(private prisma: PrismaService) {}
 
-  async create(userId: string, items: { productId: string; quantity: number; price: number }[]) {
-    const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  async create(
+    userId: string | null,
+    data: {
+      items: { productId: string; quantity: number; price: number }[];
+      email?: string;
+      customerName?: string;
+      shippingStreet?: string;
+      shippingCity?: string;
+      shippingZip?: string;
+      shippingCountry?: string;
+      shippingMethod?: string;
+    },
+  ) {
+    const itemsTotal = data.items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+    const shippingCost = data.shippingMethod === 'express' ? 15 : data.shippingMethod === 'standard' ? 5 : 0;
+    const total = itemsTotal + shippingCost;
     return this.prisma.order.create({
       data: {
-        userId,
+        userId: userId ?? null,
         total,
         status: 'PENDING',
-        items: { create: items.map((i) => ({ productId: i.productId, quantity: i.quantity, price: i.price })) },
+        email: data.email,
+        customerName: data.customerName,
+        shippingStreet: data.shippingStreet,
+        shippingCity: data.shippingCity,
+        shippingZip: data.shippingZip,
+        shippingCountry: data.shippingCountry,
+        shippingMethod: data.shippingMethod,
+        items: { create: data.items.map((i) => ({ productId: i.productId, quantity: i.quantity, price: i.price })) },
       },
       include: { items: { include: { product: { select: { name: true, image: true } } } } },
     });

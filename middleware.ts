@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const PROTECTED = ['/checkout', '/orders'];
+// /checkout is intentionally NOT protected — guests can buy without an account.
+const PROTECTED = ['/orders'];
 const ADMIN_ONLY = ['/admin'];
 const GUEST_ONLY = ['/login', '/register'];
 

@@ -374,10 +374,10 @@ export default function AdminOverview() {
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#000', flexShrink: 0 }}>
-                          {o.user.name.charAt(0).toUpperCase()}
+                          {(o.user?.name ?? o.customerName ?? 'Guest').charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--foreground)', margin: 0 }}>{o.user.name}</p>
+                          <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--foreground)', margin: 0 }}>{o.user?.name ?? o.customerName ?? 'Guest'}</p>
                           <p style={{ fontSize: 11, color: 'var(--muted)', margin: '1px 0 0' }}>{new Date(o.createdAt).toLocaleDateString()}</p>
                         </div>
                       </div>
