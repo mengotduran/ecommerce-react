@@ -855,35 +855,26 @@ body {
   flex-direction: column;
 }
 
-/* Cart drawer: keep the header and the checkout footer fixed, and let only
-   the product list scroll. The content stops being the scroller itself. */
-.cart-drawer__content {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
+/* Cart drawer: the whole drawer scrolls as before (header, guest box and the
+   checkout footer all move with it — .cart-drawer__content inherits the
+   overflow-y:auto from .page-drawer__content), while the product list ALSO
+   keeps its own compact inner scroll window. Two independent scrolls. */
 .cart-drawer__body {
-  flex: 1 1 auto;
-  min-height: 0;
   display: flex;
   flex-direction: column;
 }
 
-/* The product list is a compact scroll window — capped to a couple of
-   products tall — so the guest box, subtotal and checkout stay visible.
-   Each product keeps its own natural height; scrolling happens inside the
-   window, not on the whole drawer. */
+/* Inner scroll: the products live in a compact, capped window. Each product
+   keeps its own natural height; once they exceed the cap, the list scrolls
+   inside itself. */
 .cart-drawer__body .cart-drawer__list {
-  flex: 0 1 auto;
-  min-height: 0;
   max-height: min(45vh, 340px);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
 
-/* WebKit (Chrome/Safari/Edge): hairline scrollbar. Track is transparent so it
-   blends into the drawer background — only a faint thumb line shows.
+/* WebKit (Chrome/Safari/Edge): hairline scrollbar. Track uses the drawer
+   background so it blends in — only a faint thumb line shows.
    NOTE: do NOT set the standard `scrollbar-width` here; if it's present Chrome
    ignores these ::-webkit-scrollbar rules and clamps to its own "thin" width. */
 .cart-drawer__body .cart-drawer__list::-webkit-scrollbar {
@@ -906,16 +897,6 @@ body {
     scrollbar-width: thin;
     scrollbar-color: rgba(128, 128, 128, 0.45) var(--background);
   }
-}
-
-.cart-drawer__body .cart-drawer__guest-box {
-  flex: 0 0 auto;
-}
-
-/* Pin the subtotal + checkout to the bottom of the drawer. */
-.cart-drawer__body .cart-drawer__footer {
-  flex: 0 0 auto;
-  margin-top: auto;
 }
 
 .cart-drawer__item {
